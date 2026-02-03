@@ -1,5 +1,5 @@
 import express from 'express';
-import { create, getMyLoans, renew, list, updateStatus, getLoansByDate, getAllFine } from '../controllers/loanController.js';
+import { create, getMyLoans, renew, updateStatus, getLoansByDate, getAllFine } from '../controllers/loanController.js';
 import { loanValidation } from '../middlewares/validator.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isLibrarian } from '../middlewares/roles.js';

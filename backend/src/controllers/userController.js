@@ -251,3 +251,48 @@ export async function popularUsers(req, res){
         return res.status(500).json({ error: "Erro na busca"} );
     }
 }
+
+export async function addWishList(req, res){
+    try{
+        const { bookId } = req.body;
+        const userId = req.user.id;
+
+        const wishlist = await prisma.wishlist.findFirst({
+            where: { userId: userId,
+                    isDefault: true
+                }
+        });
+        if(!wishlist){
+            return res.status(404).json({ error: "Lista de desejos não encontrada" })
+        }
+
+        const alreadyExists = await prisma.wishlistItem.findUnique({
+            where: {
+                wishlistId_bookId: {
+                    wishlistId: wishlist.id,
+                    bookId
+                }
+            }
+        });
+        
+        if(alreadyExists){
+            return res.status(409).json({ error: "Livro já está na lista de desejos"})
+        };
+
+        const registerItem = await prisma.wishlistItem.create({
+            data: {
+                wishlistId: wishlist.id,
+                bookId
+            }
+        });
+
+        return res.status(201).json({
+            message: "Livro adicionado na lista de desejos",
+            item: registerItem
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro para adicionar livro na lista de desejos"});
+    }
+
+}

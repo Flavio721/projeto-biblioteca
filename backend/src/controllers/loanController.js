@@ -68,6 +68,8 @@ export async function create(req, res){
                 status: book.availableQty - 1 === 0 ? 'BORROWED' : book.status
             }
         });
+        sendLoanConfirmationEmail(loan.user, loan.book, loan)
+            .catch(err => console.error('Erro ao enviar email:', err));
         return res.status(201).json({
             message: 'Solicitação de empréstimo criada com sucesso',
             loan

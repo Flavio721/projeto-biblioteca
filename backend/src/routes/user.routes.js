@@ -2,7 +2,7 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin } from '../middlewares/roles.js';
-import { favorite, update, viewAllFavorites, uploadProfileImage, newPassword, popularUsers } from '../controllers/userController.js';
+import { favorite, update, viewAllFavorites, uploadProfileImage, newPassword, popularUsers, addWishList } from '../controllers/userController.js';
 import { uploadImage } from '../middlewares/upload.js';
 
 const router = express.Router();
@@ -69,6 +69,8 @@ router.get('/length', authMiddleware, isAdmin, async (req, res) => {
     });
 })
 router.get('/favorites', authMiddleware, viewAllFavorites);
+
+router.post('/add-item', authMiddleware, addWishList);
 
 router.post(
     '/users/avatar',

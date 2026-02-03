@@ -645,6 +645,9 @@
                     <button class="btn btn-outline">
                         🔍 Ver Disponibilidade
                     </button>
+                    <button class="btn btn-outline" onclick="addWishList()">
+                        📚 Adicionar na lista de desejos
+                    </button>
                     <button class="btn-favorite" id="btnFavorite" onclick="btnFavoriteClick()">
                         🤍
                     </button>
@@ -1054,7 +1057,6 @@
                     throw new Error(data.error || "Erro na busca das avaliações");
                 }
                 
-                console.log('Reviews:', data.reviews, 'Média:', data.avgRating);
                 displayReviews(data.reviews, data.avgRating);
                 
             } catch(error) {
@@ -1192,7 +1194,27 @@
                 alert('Erro ao conectar com servidor: ', error);
             }
         }
-
+        async function addWishList(){
+            try{
+                const res = await fetch(`${API_URL}/users/add-item`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro para adicionar na lista de desejos: ", data.error);
+                    return;
+                }
+                console.log("Item adicionado na lista de desejos");
+                registerActivity("WISHLIST_ADDED", `Livro ${bookName} adicionado na lista de desejos`, "BOOK", data.item.id, bookName, data.item.createdAt);
+            }catch(error){
+                console.error("Erro ao adicionar: ", error);
+            }
+        }
         // Toggle favorito
         function toggleFavorite(param) {
             const btn = document.getElementById('btnFavorite');

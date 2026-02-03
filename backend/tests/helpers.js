@@ -115,4 +115,23 @@ async function deleteLoan(){
   console.log("Apagou o empréstimo");
   return;
 }
-deleteLoan();
+
+async function createWishList(){
+  const wishList = await prisma.wishlist.create({
+            data: {
+                userId: 5
+            }
+      });
+
+    const wishListExists = await prisma.wishlist.findUnique({
+      where: {
+        userId: 5
+      }
+    })
+    if(!wishListExists){
+      console.log("Não criou wishlist")
+      return;
+    }
+      console.log("Criou wishlist")
+}
+createWishList();

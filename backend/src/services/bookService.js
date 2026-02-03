@@ -1,9 +1,7 @@
-import { prisma } from '../config/database.js';
+import { PrismaClient } from "@prisma/client";
 
-/**
- * Busca livros ordenados por popularidade (número de empréstimos)
- * @returns {Promise<Array>} Lista de livros com contagem de empréstimos
- */
+const prisma = new PrismaClient();
+
 export async function getPopularBooks() {
     const books = await prisma.book.findMany({
         include: {
@@ -21,10 +19,6 @@ export async function getPopularBooks() {
     return books;
 }
 
-/**
- * Agrupa livros por categoria e conta empréstimos
- * @returns {Promise<Array>} Categorias com total de empréstimos
- */
 export async function getPopularCategories() {
     // Agrupa empréstimos por bookId e conta
     const loansByBook = await prisma.loan.groupBy({
