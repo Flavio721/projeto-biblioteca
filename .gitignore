@@ -2,3 +2,5 @@ backend/node_modules
 backend/.env
 backend/src/prisma
 backend/uploads
+SECURITY.md
+SETUP.md
