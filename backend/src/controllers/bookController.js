@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { getPopularBooks, getPopularCategories } from '../services/bookService.js';
 
 const prisma = new PrismaClient();
 
@@ -232,18 +233,7 @@ export async function getCategories(req, res){
 }
 export async function popularBooks(req, res){
     try{
-        const books = await prisma.book.findMany({
-            include: {
-                _count: {
-                select: { loans: true }
-                },
-            },
-            orderBy: {
-                loans: {
-                _count: 'desc'
-                }
-            }
-        });
+        const books = await getPopularBooks();
 
         return res.json({
             books: books
@@ -255,57 +245,11 @@ export async function popularBooks(req, res){
 }
 export async function popularCategories(req, res) {
     try {
-        // Agrupa empréstimos por bookId e conta
-        const loansByBook = await prisma.loan.groupBy({
-            by: ['bookId'],
-            _count: {
-                id: true
-            },
-            orderBy: {
-                _count: {
-                    id: 'desc'
-                }
-            }
+        const categories = await getPopularCategories();
+
+        return res.json({ 
+            categories: categories
         });
-
-        // Busca as informações dos livros
-        const bookIds = loansByBook.map(item => item.bookId);
-        const books = await prisma.book.findMany({
-            where: {
-                id: { in: bookIds }
-            },
-            select: {
-                id: true,
-                category: true,
-                title: true
-            }
-        });
-
-        // Agrupa por categoria
-        const categoryStats = {};
-        loansByBook.forEach(loan => {
-            const book = books.find(b => b.id === loan.bookId);
-            if (book) {
-                if (!categoryStats[book.category]) {
-                    categoryStats[book.category] = {
-                        category: book.category,
-                        totalLoans: 0,
-                        books: []
-                    };
-                }
-                categoryStats[book.category].totalLoans += loan._count.id;
-                categoryStats[book.category].books.push({
-                    title: book.title,
-                    loans: loan._count.id
-                });
-            }
-        });
-
-        // Converte para array e ordena
-        const result = Object.values(categoryStats)
-            .sort((a, b) => b.totalLoans - a.totalLoans);
-
-        return res.json(result);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Erro ao buscar categorias populares' });

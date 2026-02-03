@@ -74,46 +74,9 @@ export async function create(req, res){
         });
     } catch (error) {
         console.error('Erro ao criar empréstimo: ', error);
-        res.status(500).json({error: 'Erro ao criar empréstimo'})
+        res.status(500).json({error: 'Erro ao criar emprést1imo'})
     }
 }
-
-export async function list(req, res){
-    try{
-        const { status, userId, bookId, overdue } = req.query;
-        const where = {};
-
-        if(!['ADMIN', 'LIBRARIAN'].includes(req.user.role)){
-            where.userId = req.user.id;
-        } else if(userId){
-            where.userId = parseInt(userId)
-        }
-
-        if(status) where.status = status;
-        if(bookId) where.bookId = parseInt(bookId);
-
-        if(overdue === 'true'){
-            where.dueDate = { lt: new Date()};
-            where.status = { in: ['ACTIVE', 'OVERDUE']};
-        }
-        const loans = await prisma.loan.findMany({
-            where,
-            include: {
-                user: {
-                    select: { id: true, name: true, email: true }
-                },
-                book: {
-                    select: { id: true, title: true, author: true, isbn: true }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json({ loans });
-    } catch (error) {
-        console.error('Erro ao listar empréstimos: ', error);
-        res.status(500).json({error: 'Erro ao listar empréstimos'});
-    }
-};
 export async function updateStatus(req, res){
     try{
         const { id } = req.params;
