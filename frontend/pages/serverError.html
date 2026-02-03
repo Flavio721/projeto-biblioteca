@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - BiblioTech</title>
+    <style>
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-container {
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 8rem;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: white;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>404</h1>
+        <h2>Página Não Encontrada</h2>
+        <p>Ops! Parece que este livro não está em nosso catálogo.</p>
+        
+        <div class="actions">
+            <a href="/dashboardUser" class="btn">🏠 Página Inicial</a>
+            <a href="/catalogo" class="btn">📚 Ver Catálogo</a>
+        </div>
+    </div>
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
+</body>
+</html>

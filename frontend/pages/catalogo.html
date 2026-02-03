@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - BiblioTech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: background 0.3s;
+        }
+
+        .user-menu:hover {
+            background: var(--light-gray);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-section {
+            margin-bottom: 2rem;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .filter-option:hover {
+            color: var(--primary);
+        }
+
+        .filter-option input[type="checkbox"],
+        .filter-option input[type="radio"] {
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .filter-count {
+            margin-left: auto;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .rating-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+        }
+
+        .rating-filter:hover {
+            color: var(--primary);
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .clear-filters {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .clear-filters:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            min-height: 500px;
+        }
+
+        .toolbar {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .results-info {
+            color: var(--gray);
+        }
+
+        .results-count {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--light-gray);
+            background: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .sort-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        /* BOOKS GRID */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .books-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .book-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            position: relative;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+
+        .favorite-btn.active {
+            color: var(--danger);
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-category {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            display: -webkit-box;
+            /* -webkit-line-clamp: 2; */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-author {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+        }
+
+        .rating-stars {
+            color: #fbbf24;
+        }
+
+        .book-status {
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-borrowed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-maintenance {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* LIST VIEW */
+        .books-grid.list-view .book-card {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+        }
+
+        .books-grid.list-view .book-cover {
+            height: 100%;
+            min-height: 200px;
+        }
+
+        .books-grid.list-view .book-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+        }
+
+        .page-btn {
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--light-gray);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light-gray);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                margin-bottom: 2rem;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-container {
+                display: none;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-cover {
+                height: 220px;
+                font-size: 3rem;
+            }
+
+            .books-grid.list-view .book-card {
+                grid-template-columns: 100px 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">📚 BiblioTech</a>
+            
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="globalSearch"
+                    placeholder="Buscar livros, autores, ISBN..."
+                >
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <div class="nav-actions">
+                <a href="" id="dashboard-link" style="text-decoration: none; color: var(--dark);">
+                    <div class="user-menu">
+                        <div class="user-avatar" id="user-avatar">M</div>
+                        <span id="username">Maria Silva</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- SIDEBAR FILTERS -->
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Categorias</h3>
+                <label class="filter-option">
+                    <input type="checkbox" value="literatura" onchange="applyFilters('Literatura Brasileira')">
+                    <span>Literatura Brasileira</span>
+                    <span class="filter-count" id="literatura">834</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="ficção" onchange="applyFilters('Ficção')">
+                    <span>Ficção</span>
+                    <span class="filter-count" id="ficção">512</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="fantasia" onchange="applyFilters('Fantasia')">
+                    <span>Fantasia</span>
+                    <span class="filter-count" id="fantasia">623</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="artes" onchange="applyFilters('Artes')">
+                    <span>Artes</span>
+                    <span class="filter-count" id="artes">289</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="direito" onchange="applyFilters('Direito')">
+                    <span>Direito</span>
+                    <span class="filter-count" id="direito">445</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="historia" onchange="applyFilters('Historia')">
+                    <span>História</span>
+                    <span class="filter-count" id="historia">567</span>
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Disponibilidade</h3>
+                <label class="filter-option">
+                    <input type="radio" name="availability" value="all" checked onchange="applyFilters()">
+                    <span>Todos</span>
+                </label>
+                <label class="filter-option">
+                    <input type="radio" name="availability" value="available" onchange="applyFilters()">
+                    <span>Disponível</span>
+                </label>
+                <label class="filter-option">
+                    <input type="radio" name="availability" value="borrowed" onchange="applyFilters()">
+                    <span>Emprestado</span>
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Avaliação</h3>
+                <div class="rating-filter" onclick="filterByRating(5)">
+                    <span class="stars">★★★★★</span>
+                    <span style="margin-left: auto;">5 estrelas</span>
+                </div>
+                <div class="rating-filter" onclick="filterByRating(4)">
+                    <span class="stars">★★★★</span>☆
+                    <span style="margin-left: auto;">4+ estrelas</span>
+                </div>
+                <div class="rating-filter" onclick="filterByRating(3)">
+                    <span class="stars">★★★</span>☆☆
+                    <span style="margin-left: auto;">3+ estrelas</span>
+                </div>
+            </div>
+
+            <button class="clear-filters" onclick="clearFilters()">
+                Limpar Filtros
+            </button>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- TOOLBAR -->
+            <div class="toolbar">
+                <div class="results-info">
+                    <span class="results-count" id="resultsCount">0</span> livros encontrados
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="view-options">
+                        <button class="view-btn active" onclick="changeView('grid')" title="Grade">▦</button>
+                        <button class="view-btn" onclick="changeView('list')" title="Lista">☰</button>
+                    </div>
+
+                    <select class="sort-select" id="sortSelect" onchange="sortBooks()">
+                        <option value="title">Título (A-Z)</option>
+                        <option value="author">Autor (A-Z)</option>
+                        <option value="rating">Melhor Avaliados</option>
+                        <option value="recent">Mais Recentes</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- BOOKS GRID -->
+            <div class="books-grid" id="booksGrid">
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Carregando livros...</p>
+                </div>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button class="page-btn" onclick="prevPage()">← Anterior</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">...</button>
+                <button class="page-btn">10</button>
+                <button class="page-btn" onclick="nextPage()">Próximo →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let currentPage = 1;
+        let currentView = 'grid';
+        let booksData = [];
+        let bookName = undefined
+
+        // Carregar livros ao iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDataUser();
+            loadBooks();
+            loadFilterCount();
+        });
+        async function loadDataUser(){
+            try{
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                if(!res.ok){
+                    throw new Error("Não autorizado");
+                }
+
+                const data = await res.json();
+                const name = data?.user?.name || '';
+
+                document.getElementById('username').innerText = name;
+                loadProfileAvatar();
+                dashboardRedirect(data.user.role);
+            }
+            catch(error){
+                console.log("Não foi possível encontrar usuário");
+                window.location.href = '/login';
+            }
+        }
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        async function loadProfileAvatar(){
+            const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}`}
+                }
+            );
+            const data = await res.json();
+            if(!res.ok){
+                console.log("Erro: ", data.error);
+            }
+            const avatar = document.getElementById('user-avatar');
+            if (data.user.avatarUrl) {
+                avatar.style.backgroundImage =
+                    `url(${data.user.avatarUrl})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.textContent = '';
+            } else {
+                avatar.textContent = data.user.name.charAt(0).toUpperCase();
+            }
+        }
+        async function loadFilterCount(){
+                const counters = {
+                    "Literatura Brasileira": "literatura",
+                    "Ficção": "ficção",
+                    "Fantasia": "fantasia",
+                    "Artes": "artes",
+                    "Direito": "direito",
+                    "História": "historia"
+                };
+
+                // zera tudo
+                Object.values(counters).forEach(key => {
+                    localStorage.setItem(key, 0);
+                    document.getElementById(key).innerText = 0;
+                });
+
+                const res = await fetch(`${API_URL}/books`);
+                const data = await res.json();
+
+                data.books.forEach(book => {
+                    const key = counters[book.category];
+                    if (!key) return;
+
+                    const current = Number(localStorage.getItem(key));
+                    const next = current + 1;
+
+                    localStorage.setItem(key, next);
+                    document.getElementById(key).innerText = next;
+                });
+        }
+        // Carregar livros da API
+        async function loadBooks() {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('booksGrid');
+            const pagination = document.getElementById('pagination');
+
+            try {
+                const response = await fetch(`${API_URL}/books`);
+                const data = await response.json();
+                
+                booksData = data.books;
+                displayBooks(booksData);
+                
+                pagination.style.display = 'flex';
+                
+                updateResultsCount(booksData.length);
+            } catch (error) {
+                console.error('Erro ao carregar livros:', error);
+                grid.innerHTML = '<p style="text-align: center; padding: 3rem;">Erro ao carregar livros. Tente novamente.</p>';
+            }
+        }
+
+        // Exibir livros
+        function displayBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            
+            if (books.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 3rem; grid-column: 1/-1;">Nenhum livro encontrado.</p>';
+                return;
+            }
+
+            grid.innerHTML = books.map(book => `
+                <div class="book-card" onclick="viewBookDetails(${book.id})">
+                    <div class="book-cover">
+                        ${getBookIcon(book.category)}
+                        <button class="favorite-btn" onclick="toggleFavorite(event, ${book.id})">
+                            ${book.isFavorite ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-category">${book.category}</div>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <div class="book-rating">
+                                <span class="rating-stars">${getStars(book.averageRating || 0)}</span>
+                                <span>${(book.averageRating || 0).toFixed(1)}</span>
+                            </div>
+                            <span class="book-status status-${getStatusClass(book.availableQty)}">
+                                ${book.availableQty > 0 ? 'Disponível' : 'Emprestado'}
+                            </span>
+                        </div>
+                        <div class="book-actions">
+                            ${book.availableQty > 0 
+                                ? '<button class="btn-action btn-primary" onclick="borrowBook(event, ' + book.id + ')">Emprestar</button>'
+                                : '<button class="btn-action btn-outline" disabled>Indisponível</button>'
+                            }
+                            <button class="btn-action btn-outline" onclick="viewBookDetails(' + book.id + ')">Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helpers
+        function getBookIcon(category) {
+            const icons = {
+                'Literatura': '📚',
+                'Tecnologia': '💻',
+                'Ciências': '🔬',
+                'Artes': '🎨',
+                'Direito': '⚖️',
+                'História': '🏛️',
+                'Ficção': '📖',
+                'default': '📕'
+            };
+            return icons[category] || icons.default;
+        }
+
+        function getStars(rating) {
+            const fullStars = Math.floor(rating);
+            return '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+        }
+
+        function getStatusClass(qty) {
+            return qty > 0 ? 'available' : 'borrowed';
+        }
+
+        // Mudar visualização
+        function changeView(view) {
+            currentView = view;
+            const grid = document.getElementById('booksGrid');
+            const buttons = document.querySelectorAll('.view-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (view === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+        }
+
+        // Ordenar livros
+        function sortBooks() {
+            const sortValue = document.getElementById('sortSelect').value;
+            let sorted = [...booksData];
+            
+            switch(sortValue) {
+                case 'title':
+                    sorted.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'author':
+                    sorted.sort((a, b) => a.author.localeCompare(b.author));
+                    break;
+                case 'rating':
+                    sorted.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+                    break;
+                case 'recent':
+                    sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    break;
+            }
+            
+            displayBooks(sorted);
+        }
+
+        // Aplicar filtros
+        async function applyFilters(category) {
+            try{                
+                const res = await fetch(`${API_URL}/books/book-filter`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        category: category
+                    })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro no filtro: ", data.error);
+                    return;
+                }
+                const allBooks = data.books
+                displayBooks(allBooks)
+                
+            } catch (error) {
+                console.error('Erro ao carregar livros:', error);
+                grid.innerHTML = '<p style="text-align: center; padding: 3rem;">Erro ao carregar livros. Tente novamente.</p>';
+            }
+            
+        }
+
+        // Limpar filtros
+        function clearFilters() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelector('input[value="all"]').checked = true;
+            applyFilters();
+        }
+
+        // Ações
+        async function toggleFavorite(event, bookId) {
+            try{
+                const res = await fetch(`${API_URL}/books/${bookId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.log("Erro: ", data.error);
+                    return;
+                }
+                bookName = data.title;
+            }catch(error){
+                console.error("Erro na busca do livro: ", error);
+                return;
+            }
+            event.stopPropagation();
+            console.log('Toggle favorite:', bookId);
+            
+            const res = await fetch(`${API_URL}/users/favoritar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    bookId: bookId,
+                })
+            });
+            if(!res.ok){
+                throw new Error("Erro ao favoritar");
+            }
+            const data = await res.json();
+            registerActivity("BOOK_FAVORITED", `Você adicionou '${bookName}' aos favoritos`, "BOOK", data.favorite.id, bookName, data.favorite.createdAt);
+        }
+        
+        async function borrowBook(event, bookId) {
+            event.stopPropagation();
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Faça login para emprestar livros');
+                window.location.href = '/login';
+                return;
+            }
+            try{
+                const res = await fetch(`${API_URL}/books/${bookId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro na consulta do livro");
+                }
+                bookName = data.title;
+            } catch(error){
+                console.error("Erro: ", error);
+
+            }
+            try {
+                const response = await fetch(`${API_URL}/loans/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Solicitação de empréstimo enviada com sucesso!');
+                    loadBooks();
+                    registerActivity("LOAN_CREATED", `Empréstimo do livro ${bookName}`, "LOAN", data.loan.id, bookName, data.loan.dueDate)
+                } else {
+                    alert(data.error || 'Erro ao solicitar empréstimo');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao conectar com o servidor');
+            }
+        }
+        async function registerActivity(action, note, entityType, entityId, bookName, dueDate){
+            if(!action || !note || !entityType || !entityId || !bookName || !dueDate){
+                alert("Campo vazio!");
+                console.log(action, note, entityType, entityId, bookName, dueDate);
+                return;
+            }
+            const metadata = {
+                "bookTitle": bookName,
+                "dueDate": dueDate
+            };
+
+            try{
+                const res = await fetch(`${API_URL}/dashboard/recent-activity`, {
+                    method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                        action,
+                        note,
+                        entityType,
+                        entityId,
+                        metadata
+                    })
+                });
+                const response = await res.json();
+                if(!res.ok){
+                    console.error("Erro no registro de atividade: ", response.error);
+                    return;
+                }
+                else{
+                    console.log("Atividade registrada!");
+                    return;
+
+                }
+            }catch(error){
+                console.error("Erro no registro após o try: ", error);
+                return;
+            }
+        }
+        function viewBookDetails(bookId) {
+            window.location.href = `/livro/${bookId}`;
+        }
+
+        function filterByRating(minRating) {
+            const filtered = booksData.filter(book => 
+                (book.averageRating || 0) >= minRating
+            );
+            displayBooks(filtered);
+            updateResultsCount(filtered.length);
+        }
+
+        function updateResultsCount(count) {
+            document.getElementById('resultsCount').textContent = count;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadBooks();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            loadBooks();
+        }
+
+        // Busca global
+        document.getElementById('globalSearch')?.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = booksData.filter(book => 
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.author.toLowerCase().includes(searchTerm) ||
+                book.isbn.includes(searchTerm)
+            );
+            displayBooks(filtered);
+            updateResultsCount(filtered.length);
+        });
+    </script>
+</body>
+</html>

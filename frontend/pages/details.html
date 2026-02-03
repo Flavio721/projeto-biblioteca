@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Livro - BiblioTech</title>
+    <style>
+        /* ===================== RESET ===================== */
+        * {
+            margin: 0;
+            padding: 1px;
+            box-sizing: border-box;
+        }
+        
+        /* ===================== TOKENS BASE ===================== */
+        :root {
+        /* Brand */
+        --primary: #6366f1;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        /* Light theme */
+        --bg: #f1f5f9;
+        --surface: #ffffff;
+        --surface-soft: #e5e7eb;
+        --text: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+        --shadow-md: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        
+        /* ===================== DARK THEME ===================== */
+        [data-theme="dark"] {
+        --bg: #020617;
+        --surface: #0f172a;
+        --surface-soft: #1e293b;
+        --text: #e5e7eb;
+        --text-muted: #9ca3af;
+        --border: #1f2937;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.6);
+        --shadow-md: 0 12px 24px rgba(0,0,0,0.7);
+        }
+        
+        /* ===================== BASE ===================== */
+        body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        }
+        
+        /* ===================== NAVBAR ===================== */
+        .navbar {
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        }
+        
+        .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        }
+        
+        .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        cursor: pointer;
+        }
+        
+        .nav-links {
+        display: flex;
+        gap: 2rem;
+        }
+        
+        .nav-link {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 500;
+        }
+        
+        .nav-link:hover {
+        color: var(--primary);
+        }
+        
+        /* ===================== BREADCRUMB ===================== */
+        .breadcrumb {
+        max-width: 1200px;
+        margin: 1.5rem auto;
+        padding: 0 2rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+        }
+        
+        /* ===================== CONTAINER ===================== */
+        .container {
+        max-width: 1200px;
+        margin: 0 auto 2rem;
+        padding: 0 2rem;
+        }
+        
+        /* ===================== BOOK HEADER ===================== */
+        .book-header {
+        background: var(--surface);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+        }
+        
+        .book-cover {
+        height: 350px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6rem;
+        color: white;
+        box-shadow: var(--shadow-md);
+        }
+        
+        .book-category {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        }
+        
+        .book-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        }
+        
+        .book-author {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        }
+        .book-actions{
+            gap: 30px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* ===================== META ===================== */
+        .book-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        }
+        
+        .meta-item {
+        padding: 0.75rem;
+        background: var(--surface-soft);
+        border-radius: 8px;
+        }
+        
+        .meta-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        }
+        
+        .meta-value {
+        font-weight: 600;
+        }
+        
+        /* ===================== AVAILABILITY ===================== */
+        .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        }
+        
+        .badge-available {
+        background: #064e3b;
+        color: #d1fae5;
+        }
+        
+        .badge-unavailable {
+        background: #7f1d1d;
+        color: #fee2e2;
+        }
+        .availability-text{
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* ===================== BUTTONS ===================== */
+        .btn {
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        }
+        
+        .btn-primary {
+        background: var(--primary);
+        color: white;
+        }
+        
+        .btn-primary:hover {
+        filter: brightness(1.1);
+        }
+        
+        .btn-outline {
+        background: transparent;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+        background: var(--primary);
+        color: white;
+        }
+        .btn-favorite{
+            background: transparent;
+            border: none;
+            font-size: 35px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-favorite:hover{
+            scale: 1.1;
+            border-color: var(--primary);
+        }
+        
+        /* ===================== TABS ===================== */
+        .tabs {
+        background: var(--surface);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        }
+        
+        .tab-list {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        }
+        
+        .tab {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        }
+        
+        .tab.active {
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+        }
+        
+        .tab-content {
+        padding: 2rem;
+        }
+        .tab-panel{
+            display: none;
+
+            &.active{
+                display: block;
+            }
+        }
+        
+
+        /* ===================== REVIEW ===================== */
+        .review-summary {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--surface-soft);
+            border-radius: 8px;
+        }
+
+        .rating-overview {
+            text-align: center;
+        }
+
+        .rating-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .rating-bars {
+            flex: 1;
+        }
+
+        .rating-bar {
+            display: grid;
+            grid-template-columns: 30px 1fr 30px;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .bar {
+            height: 8px;
+            background: var(--surface-soft);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--warning);
+            transition: width 0.3s;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-author {
+            font-weight: 600;
+        }
+
+        .review-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .review-stars {
+            color: var(--warning);
+            margin-bottom: 0.5rem;
+        }
+
+        .review-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        /* ===================== REVIEW FORM ===================== */
+        .review-form-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .review-form-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .review-form-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .review-form {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .optional {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            font-size: 3rem;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            color: var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: var(--warning);
+            transform: scale(1.1);
+        }
+
+        .star-rating input:checked ~ label {
+            color: var(--warning);
+        }
+
+        .rating-description {
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            min-height: 1.5rem;
+        }
+
+        /* Textarea */
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Success Message */
+        .review-success {
+            text-align: center;
+            padding: 3rem;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 1.5rem;
+            animation: scaleIn 0.5s ease;
+        }
+
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .recommendation-card {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .recommendation-card:hover {
+            transform: scale(1.05);
+        }
+
+        .recommendation-cover {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: -webkit-box;
+            /* -webkit-line-clamp: 2; */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .info-item{
+            display: flex;
+            gap: 5px;
+        }
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 768px) {
+        .book-header {
+            grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+            
+            .star-rating {
+                font-size: 2.5rem;
+            }
+        }
+        /* ===================== KEYFRAMES ===================== */
+        @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+}
+</style>
+</head>
+    <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="window.location.href='/'">📚 BiblioTech</div>
+            <div class="nav-links">
+                <a href="/catalogo" class="nav-link">Catálogo</a>
+                <a href="" id="dashboard-link" class="nav-link">Dashboard</a>
+                <a href="/perfil" class="nav-link">Perfil</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+        <a href="/">Início</a> / <a href="/catalogo">Catálogo</a> / <span id="breadcrumbTitle">Detalhes</span>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- BOOK HEADER -->
+        <div class="book-header">
+            <div class="book-cover" id="bookCover">📕</div>
+            
+            <div class="book-info">
+                <div>
+                    <div class="book-category" id="bookCategory">Categoria</div>
+                    <h1 class="book-title" id="bookTitle">Carregando...</h1>
+                    <div class="book-author" id="bookAuthor">Autor</div>
+                    
+                    <div class="book-rating">
+                        <div class="stars" id="bookStars">★★★★★</div>
+                        <span class="rating-text" id="ratingText">0 avaliações</span>
+                    </div>
+
+                    <div class="book-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">ISBN</div>
+                            <div class="meta-value" id="bookIsbn">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Editora</div>
+                            <div class="meta-value" id="bookPublisher">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Ano</div>
+                            <div class="meta-value" id="bookYear">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Páginas</div>
+                            <div class="meta-value" id="bookPages">-</div>
+                        </div>
+                    </div>
+
+                    <div class="availability">
+                        <div class="availability-text">
+                            <span>Disponibilidade:</span>
+                            <span class="status-badge" id="availabilityBadge">Verificando...</span>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--gray); font-size: 0.9rem;" id="availabilityDetails">
+                            Localização: <span id="bookLocation">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-actions">
+                    <button class="btn btn-primary" id="btnBorrow">
+                        📚 Solicitar Empréstimo
+                    </button>
+                    <button class="btn btn-outline">
+                        🔍 Ver Disponibilidade
+                    </button>
+                    <button class="btn-favorite" id="btnFavorite" onclick="btnFavoriteClick()">
+                        🤍
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab-list">
+                <button class="tab active" onclick="showTab(0)">Descrição</button>
+                <button class="tab" onclick="showTab(1)">Informações</button>
+                <button class="tab" onclick="showTab(2)">Avaliações (<span id="reviewCount">0</span>)</button>
+                <button class="tab" onclick="showTab(3)">Livros Relacionados</button>
+                <button class="tab" onclick="showTab(4)">Criar avaliação</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- DESCRIPTION -->
+                <div class="tab-panel active" id="panel0">
+                    <p class="description" id="bookDescription">
+                        Carregando descrição...
+                    </p>
+                </div>
+
+                <!-- INFORMATION -->
+                <div class="tab-panel" id="panel1">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">ISBN:</div>
+                            <div class="info-value" id="infoIsbn">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Editora:</div>
+                            <div class="info-value" id="infoPublisher">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Ano de Publicação:</div>
+                            <div class="info-value" id="infoYear">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Idioma:</div>
+                            <div class="info-value" id="infoLanguage">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Páginas:</div>
+                            <div class="info-value" id="infoPages">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Categoria:</div>
+                            <div class="info-value" id="infoCategory">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Quantidade Total:</div>
+                            <div class="info-value" id="infoQuantity">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Disponíveis:</div>
+                            <div class="info-value" id="infoAvailable">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REVIEWS -->
+                <div class="tab-panel" id="panel2">
+                    <div class="review-summary">
+                        <div class="rating-overview">
+                            <div class="rating-number" id="avgRating">0.0</div>
+                            <div class="stars" id="avgStars">☆☆☆☆☆</div>
+                            <div style="color: var(--gray); margin-top: 0.5rem;" id="totalReviews">0 avaliações</div>
+                        </div>
+                        <div class="rating-bars">
+                            <div class="rating-bar">
+                                <span>5★</span>
+                                <div class="bar"><div class="bar-fill" style="width: 0%" id="bar5"></div></div>
+                                <span id="count5">0</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span>4★</span>
+                                <div class="bar"><div class="bar-fill" style="width: 0%" id="bar4"></div></div>
+                                <span id="count4">0</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span>3★</span>
+                                <div class="bar"><div class="bar-fill" style="width: 0%" id="bar3"></div></div>
+                                <span id="count3">0</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span>2★</span>
+                                <div class="bar"><div class="bar-fill" style="width: 0%" id="bar2"></div></div>
+                                <span id="count2">0</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span>1★</span>
+                                <div class="bar"><div class="bar-fill" style="width: 0%" id="bar1"></div></div>
+                                <span id="count1">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-list" id="reviewList">
+                        <div class="empty">
+                            <div class="empty-icon">💬</div>
+                            <p>Nenhuma avaliação ainda. Seja o primeiro!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RELATED BOOKS -->
+                <div class="tab-panel" id="panel3">
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                        <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    </div>
+                </div>
+                <div class="tab-painel" id="painel4">
+                    <div class="review-form-container">
+                        <h2 class="review-form-title">Avaliar este livro</h2>
+                        <p class="review-form-subtitle">Compartilhe sua opinião sobre esta obra</p>
+                        
+                        <form id="reviewForm" class="review-form">
+                            <!-- Rating -->
+                            <div class="form-group">
+                                <label class="form-label">Sua avaliação</label>
+                                <div class="star-rating">
+                                    <input type="radio" name="rating" value="5" id="star5">
+                                    <label for="star5" title="5 estrelas">★</label>
+                                    
+                                    <input type="radio" name="rating" value="4" id="star4">
+                                    <label for="star4" title="4 estrelas">★</label>
+                                    
+                                    <input type="radio" name="rating" value="3" id="star3">
+                                    <label for="star3" title="3 estrelas">★</label>
+                                    
+                                    <input type="radio" name="rating" value="2" id="star2">
+                                    <label for="star2" title="2 estrelas">★</label>
+                                    
+                                    <input type="radio" name="rating" value="1" id="star1">
+                                    <label for="star1" title="1 estrela">★</label>
+                                </div>
+                                <div class="rating-description" id="ratingDescription">Selecione uma avaliação</div>
+                            </div>
+
+                            <!-- Comentário -->
+                            <div class="form-group">
+                                <label class="form-label" for="reviewComment">
+                                    Seu comentário 
+                                    <span class="optional">(opcional)</span>
+                                </label>
+                                <textarea 
+                                    id="reviewComment" 
+                                    class="form-textarea" 
+                                    placeholder="Conte o que você achou do livro..."
+                                    rows="5"
+                                    maxlength="500"
+                                ></textarea>
+                                <div class="char-count">
+                                    <span id="charCount">0</span>/500 caracteres
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline" onclick="clearReviewForm()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    📝 Publicar Avaliação
+                                </button>
+                            </div>
+                        </form>
+
+                <!-- Success Message (hidden by default) -->
+                <div class="review-success" id="reviewSuccess" style="display: none;">
+                    <div class="success-icon">✓</div>
+                    <h3>Avaliação enviada com sucesso!</h3>
+                    <p>Obrigado por compartilhar sua opinião.</p>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        
+        // Pegar ID do livro da URL
+        const pathParts = window.location.pathname.split('/');
+        const bookId = Number(pathParts[pathParts.length - 1]);
+        let bookName = undefined
+
+        if (!bookId || isNaN(bookId)) {
+            console.error('ID inválido na URL');
+        }
+
+        async function registerActivity(action, note, entityType, entityId, bookName, dueDate){
+            if(!action || !note || !entityType || !entityId || !bookName || !dueDate){
+                alert("Campo vazio!");
+                console.log(action, note, entityType, entityId, bookName, dueDate);
+                return;
+            }
+            const metadata = {
+                "bookTitle": bookName,
+                "dueDate": dueDate
+            };
+
+            try{
+                const res = await fetch(`${API_URL}/dashboard/recent-activity`, {
+                    method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                        action,
+                        note,
+                        entityType,
+                        entityId,
+                        metadata
+                    })
+                });
+                const response = await res.json();
+                if(!res.ok){
+                    console.error("Erro no registro de atividade: ", response.error);
+                    return;
+                }
+                else{
+                    console.log("Atividade registrada!");
+                    return;
+
+                }
+            }catch(error){
+                console.error("Erro no registro após o try: ", error);
+                return;
+            }
+        }
+        // Carregar dados do livro
+        async function loadBook() {
+            try {
+                const response = await fetch(`${API_URL}/books/${bookId}`);
+                if (!response.ok) throw new Error('Livro não encontrado');
+                
+                const book = await response.json();
+                displayBook(book);
+                loadRelatedBooks(book.category);
+                favoriteBook();
+                loadBookCover(book.coverImage)
+                bookName = book.title
+                fetchReviews();
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar livro');
+            }
+        }
+        async function loadBookCover(cover){
+            const avatar = document.getElementById('bookCover');
+            if (cover) {
+                avatar.style.backgroundImage =
+                    `url(${cover})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.textContent = '';
+            }
+        }
+        // Carregar dados do usuário
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if(!response.ok){
+                    console.error("Erro na busca dos dados pessoais: ", data.error);
+                }
+                dashboardRedirect(data.user.role);
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        // Definir redirecionamento do dashboard
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        // Conferimento se o livro é favorito
+        async function favoriteBook(){
+            const res = await fetch(`${API_URL}/books/books-isfavorite?bookId=${bookId}`, {
+                headers: {
+                'Authorization': `Bearer ${token}`
+            }
+            })
+            if(!res.ok){
+                const err = await res.json();
+                console.error(err);
+                return;
+            }
+            const data = await res.json();
+            toggleFavorite(data.favorite);
+            return data.favorite;
+        }
+        // Exibir dados do livro
+        function displayBook(book) {
+            // Breadcrumb
+            document.getElementById('breadcrumbTitle').textContent = book.title;
+
+            // Header
+            document.getElementById('bookTitle').textContent = book.title;
+            document.getElementById('bookAuthor').textContent = book.author;
+            document.getElementById('bookCategory').textContent = book.category;
+            document.getElementById('bookIsbn').textContent = book.isbn;
+            document.getElementById('bookPublisher').textContent = book.publisher || '-';
+            document.getElementById('bookYear').textContent = book.publishYear || '-';
+            document.getElementById('bookPages').textContent = book.pages || '-';
+            document.getElementById('bookLocation').textContent = book.location || 'Não informado';
+
+            // Rating
+            const avgRating = book.averageRating || 0;
+            const reviewCount = book.reviews?.length || 0;
+
+            if(reviewCount === 0){
+                document.querySelectorAll('.rating-bar').textContent = ""
+            }
+            document.getElementById('ratingText').textContent = `${reviewCount} avaliação(ões)`;
+
+            // Availability
+            const available = book.availableQty > 0;
+            const badge = document.getElementById('availabilityBadge');
+            badge.className = `status-badge badge-${available ? 'available' : 'unavailable'}`;
+            badge.textContent = available ? `${book.availableQty} disponível(is)` : 'Indisponível';
+
+            // Borrow button
+            const btnBorrow = document.getElementById('btnBorrow');
+            if (!available) {
+                btnBorrow.disabled = true;
+                btnBorrow.textContent = '❌ Indisponível';
+                btnBorrow.style.opacity = '0.5';
+                btnBorrow.style.cursor = 'not-allowed';
+            } else {
+                btnBorrow.onclick = () => borrowBook(book.id);
+            }
+
+            // Description
+            const description = document.getElementById('bookDescription');
+
+            description.textContent = book.description || 'Sem descrição disponível.';
+
+            // Information tab
+            document.getElementById('infoIsbn').textContent = book.isbn;
+            document.getElementById('infoPublisher').textContent = book.publisher || '-';
+            document.getElementById('infoYear').textContent = book.publishYear || '-';
+            document.getElementById('infoLanguage').textContent = book.language || 'Português';
+            document.getElementById('infoPages').textContent = book.pages || '-';
+            document.getElementById('infoCategory').textContent = book.category;
+            document.getElementById('infoQuantity').textContent = book.quantity;
+            document.getElementById('infoAvailable').textContent = book.availableQty;
+
+            // Reviews
+            displayReviews(book.reviews || [], avgRating);
+        }
+
+        async function fetchReviews() {
+            try {
+                const res = await fetch(`${API_URL}/reviews/book-reviews/${bookId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await res.json();
+                
+                if(!res.ok) {
+                    throw new Error(data.error || "Erro na busca das avaliações");
+                }
+                
+                console.log('Reviews:', data.reviews, 'Média:', data.avgRating);
+                displayReviews(data.reviews, data.avgRating);
+                
+            } catch(error) {
+                console.error("Erro ao buscar reviews:", error);
+                // Exibir UI vazia em caso de erro
+                displayReviews([], 0);
+            }
+        }
+
+        // Exibir avaliações
+        function displayReviews(reviews, avgRating) {
+            document.getElementById('reviewCount').textContent = reviews.length;
+            
+            // Se não houver avaliações, esconde a seção de estatísticas
+            const reviewSummary = document.querySelector('.review-summary');
+            if (reviews.length === 0) {
+                reviewSummary.style.display = 'none';
+                
+                const container = document.getElementById('reviewList');
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">💬</div>
+                        <p>Nenhuma avaliação para este livro. Seja o primeiro!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Se houver avaliações, mostra a seção
+            reviewSummary.style.display = 'flex';
+            
+            document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+            document.getElementById('avgStars').textContent = getStars(avgRating);
+            document.getElementById('totalReviews').textContent = `${reviews.length} avaliação(ões)`;
+
+            // Calcular distribuição
+            const distribution = [0, 0, 0, 0, 0];
+            reviews.forEach(r => distribution[r.rating - 1]++);
+
+            for (let i = 1; i <= 5; i++) {
+                const count = distribution[i - 1];
+                const percent = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                document.getElementById(`bar${i}`).style.width = `${percent}%`;
+                document.getElementById(`count${i}`).textContent = count;
+            }
+
+            // Lista de avaliações
+            const container = document.getElementById('reviewList');
+            container.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-author">${review.user.name}</div>
+                        <div class="review-date">${formatDate(review.createdAt)}</div>
+                    </div>
+                    <div class="review-stars">${getStars(review.rating)}</div>
+                    <div class="review-text">${review.comment || 'Sem comentário'}</div>
+                </div>
+            `).join('');
+        }
+
+        // Carregar livros relacionados
+         async function loadRelatedBooks(category) {
+            try {
+                const response = await fetch(`${API_URL}/books?category=${category}&limit=6`);
+                const book = await response.json();
+                
+                const relatedBooks = book.books.filter(book => book.id !== bookId);
+                
+                const grid = document.getElementById('recommendationsGrid');
+                
+
+                // Se não houver livros relacionados após filtrar
+                if (relatedBooks.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--text-muted);">
+                            📚 Nenhum livro relacionado encontrado
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = relatedBooks.slice(0, 6).map(book => {
+                const coverStyle = book.coverImage 
+                    ? `style="background-image: url('${book.coverImage}'); background-size: 100% 100%; background-position: center;"` 
+                    : '';
+                
+                const coverContent = book.coverImage ? '' : getIcon(book.category || book.title);
+                
+                return `
+                    <div class="recommendation-card" onclick="viewBookDetails(${book.id})">
+                        <div class="recommendation-cover" ${coverStyle}>${coverContent}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                `;
+            }).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar relacionados:', error);
+                document.getElementById('recommendationsGrid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--danger);">
+                        ❌ Erro ao carregar livros relacionados
+                    </div>
+                `;
+            }
+        }
+
+        // Emprestar livro
+        async function borrowBook(bookId) {
+            if (!token) {
+                alert('Faça login para solicitar empréstimo');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/loans/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Solicitação enviada com sucesso!');
+                    loadBook();
+                    registerActivity("LOAN_CREATED", `Empréstimo do livro ${bookName}`, "LOAN", data.loan.id, bookName, data.loan.dueDate);
+                } else {
+                    alert(data.error || 'Erro ao solicitar empréstimo');
+                }
+            } catch (error) {
+                alert('Erro ao conectar com servidor: ', error);
+            }
+        }
+
+        // Toggle favorito
+        function toggleFavorite(param) {
+            const btn = document.getElementById('btnFavorite');
+            if(param === true){
+                btn.classList.toggle('active');
+            }
+            else{
+                btn.classList.remove('active');
+            }
+            btn.textContent = btn.classList.contains('active') ? '❤️' : '🤍';
+        }
+        async function btnFavoriteClick(){
+            const btn = document.getElementById('btnFavorite');
+            const isFavorite = await favoriteBook();
+            if(isFavorite){
+                const res = await fetch(`${API_URL}/books/desfavorite?bookId=${bookId}`, {
+                    method: 'DELETE',
+                    headers: {
+                    'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json()
+                if(!res.ok){
+                    console.error("Erro ao desfavoritar: ", data.error);
+                    return;
+                }
+                btn.classList.remove('active')
+            }
+            else{
+                const res = await fetch(`${API_URL}/users/favoritar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    bookId: bookId,
+                })
+            });
+                if(!res.ok){
+                    throw new Error("Erro ao favoritar");
+                }
+                const data = await res.json();
+                console.log(data.message);
+                btn.classList.toggle('active');
+                registerActivity("BOOK_FAVORITED", `Você adicionou '${bookName}' aos favoritos`, "BOOK", data.favorite.id, bookName, data.favorite.createdAt);
+            }
+            btn.textContent = btn.classList.contains('active') ? '❤️' : '🤍';
+    }
+            document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const rating = document.querySelector('.star-rating input:checked')?.value;
+                const comment = document.getElementById('reviewComment').value;
+
+
+                if (!rating) {
+                    alert('Por favor, selecione uma avaliação');
+                    return;
+                }
+
+
+                const res = await fetch(`${API_URL}/reviews/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        bookId: bookId,
+                        rating: rating,
+                        comment: comment
+                    })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro no envio da review: ", data.error);
+                }
+                console.log(data.review)
+            })
+        // Trocar aba
+        function showTab(index) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-panel').forEach((p, i) => {
+                p.classList.toggle('active', i === index);
+            });
+        }
+
+        // Ver outro livro
+        function viewBookDetails(id) {
+            window.location.href = `/livro/${id}`;
+        }
+
+        // Helpers
+        function getStars(rating) {
+            const full = Math.floor(rating);
+            return '★'.repeat(full) + '☆'.repeat(5 - full);
+        }
+
+        function getIcon(category) {
+            const icons = {
+                'Tecnologia': '💻',
+                'Literatura': '📚',
+                'Ficção': '📖',
+                'Ciências': '🔬',
+                'Artes': '🎨',
+                'História': '🏛️'
+            };
+            return icons[category] || '📕';
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Carregar ao iniciar
+        loadBook();
+        loadUserData();
+    </script>
+</body>
+</html>

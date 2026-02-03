@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Meus Empréstimos - BiblioTech</title>
+    <style>
+       * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===============================
+   DESIGN TOKENS (LIGHT)
+================================ */
+:root {
+    /* Brand */
+    --primary: #6366f1;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    /* Backgrounds */
+    --bg-page: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-muted: #e5e7eb;
+
+    /* Text */
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+
+    /* Borders & shadows */
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+}
+/* ===============================
+   DESIGN TOKENS (DARK)
+================================ */
+[data-theme="dark"] {
+    --bg-page: #020617;
+    --bg-surface: #0f172a;
+    --bg-muted: #1e293b;
+
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-inverse: #020617;
+
+    --border-color: #1e293b;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.4);
+    --shadow-md: 0 6px 20px rgba(0,0,0,0.5);
+}
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+}
+.navbar {
+    background: var(--bg-surface);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.navbar a:hover {
+    color: var(--primary);
+}
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    color: var(--text-muted);
+}
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-muted);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background: color-mix(in srgb, var(--primary) 10%, var(--bg-muted));
+}
+
+.tab.active {
+    background: var(--primary);
+    color: var(--text-inverse);
+    border-color: var(--primary);
+}
+.loan-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.loan-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+.loan-cover {
+    width: 100px;
+    height: 140px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary), #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--text-inverse);
+}
+.loan-info h3 {
+    margin-bottom: 0.25rem;
+}
+
+.loan-meta {
+    margin: 0.75rem 0;
+    color: var(--text-muted);
+}
+.loan-status {
+    display: inline-block;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: color-mix(in srgb, var(--success) 20%, transparent);
+    color: var(--success);
+}
+
+.status-pending {
+    background: color-mix(in srgb, var(--warning) 20%, transparent);
+    color: var(--warning);
+}
+
+.status-overdue {
+    background: color-mix(in srgb, var(--danger) 20%, transparent);
+    color: var(--danger);
+}
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: var(--text-inverse);
+}
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">📚 BiblioTech</div>
+            <div style="display: flex; gap: 2rem;">
+                <a href="" id="dashboard-link">Dashboard</a>
+                <a href="/catalogo">Catálogo</a>
+                <a href="/perfil">Perfil</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Meus Empréstimos</h1>
+            <p style="color: var(--gray);">Gerencie seus livros emprestados</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab" onclick="filterLoans('active'), filterSearch('active')">Ativos</button>
+            <button class="tab" onclick="filterLoans('pending'), filterSearch('pending')">Pendentes</button>
+            <button class="tab active" onclick="filterLoans('history'), allMyLoans()">Histórico</button>
+        </div>
+
+        <div class="loan-grid" id="loansContainer">
+            <div style="text-align: center; padding: 3rem; color: var(--gray);">
+                Carregando empréstimos...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+
+        async function loadLoans() {
+            try {
+                const response = await fetch(`${API_URL}/loans/my-loans`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                displayLoans(data.loans);
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    dashboardRedirect(data.user.role);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+
+        function displayLoans(loans) {
+            const container = document.getElementById('loansContainer');
+            
+            if (!loans || loans.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 4rem;">📚</div>
+                        <p>Nenhum empréstimo encontrado</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = loans.map(loan => `
+                <div class="loan-card">
+                    <div class="loan-cover">📕</div>
+                    <div class="loan-info">
+                        <h3>${loan.book.title}</h3>
+                        <p style="color: var(--gray);">${loan.book.author}</p>
+                        <div class="loan-meta">
+                            <div>📅 Emprestado: ${formatDate(loan.loanDate)}</div>
+                            <div>⏰ Devolução: ${formatDate(loan.dueDate)}</div>
+                            <div>🔄 Renovações: ${loan.renewalCount}/2</div>
+                        </div>
+                        <span class="loan-status status-${loan.status.toLowerCase()}">
+                            ${getStatusText(loan.status)}
+                        </span>
+                    </div>
+                    <div class="loan-actions">
+                        ${loan.renewalCount < 2 ? 
+                            `<button class="btn btn-primary" onclick="renewLoan(${loan.id})">Renovar</button>` :
+                            `<button class="btn btn-outline" disabled>Limite atingido</button>`
+                        }
+                        <button class="btn btn-outline" onclick="viewBook(${loan.book.id})">Ver Livro</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterLoans(status) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            loadLoans();
+        }
+        async function filterSearch(param){
+            const res = await fetch(`${API_URL}/loans/my-loans/${param}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if(!res.ok){
+                console.error("Erro na busca: ", res.error);
+            }
+            const data = await res.json();
+            displayLoans(data.loans)
+        }
+        async function renewLoan(id) {
+            try {
+                const response = await fetch(`${API_URL}/loans/${id}/renew`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    alert('Empréstimo renovado com sucesso!');
+                    loadLoans();
+                } else {
+                    const data = await response.json();
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Erro ao renovar');
+            }
+        }
+
+        function viewBook(id) {
+            window.location.href = `/livro/${id}`;
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('pt-BR');
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'PENDING': 'Pendente',
+                'ACTIVE': 'Ativo',
+                'OVERDUE': 'Atrasado',
+                'RETURNED': 'Devolvido'
+            };
+            return texts[status] || status;
+        }
+
+        loadLoans();
+        loadUserData();
+    </script>
+</body>
+</html>

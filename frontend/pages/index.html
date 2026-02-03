@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+        body{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+        nav{
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            h2{
+                font-weight: bold;
+                color: blue;
+            }
+            .opcs{
+                display: flex;
+                gap: 30px;
+                margin-right: 15px;
+                align-items: center;
+                font-weight: 600;
+
+                .nav-link{
+                    color: black;
+                    text-decoration: none;
+                }
+                .btn-login{
+                    padding: 5px 15px;
+                    border: 1px solid blue;
+                    border-radius: 10px;
+                    text-decoration: none;
+                }
+                .btn-cadastro{
+                    background-color: blue;
+                    border-radius: 10px;
+                    padding: 5px 15px;
+                    text-decoration: none;
+                    color: white;
+                }
+            }
+        }
+        .hero-section{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+
+            h1{
+                font-size: 4em;
+                color: white;
+                font-weight: bold;
+            }
+            p{
+                font-size: 1.3em;
+                color: white;
+            }
+            .search{
+                max-width: 600px;
+                width: 60%;
+                margin: 0 auto 2rem;
+                position: relative;
+                animation: fadeInUp 0.8s 0.4s both;
+
+                input{
+                    width: 100%;
+                    padding: 1rem 3rem 1rem 1.5rem;
+                    border-radius: 50px;
+                    border: none;
+                    font-size: 1rem;
+                    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+                }
+                button{
+                    position: absolute;
+                    right: 5px;
+                    top: 5px;
+                    padding: 0.8rem 2rem;
+                    background-color: #6366f1;
+                    color: white;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    font-weight: 600;
+                }
+            }
+            .btns-hero{
+                display: flex;
+                justify-content: space-between;
+                gap: 40px;
+            }
+        }
+        .explore-catalogo{
+            background-color: white;
+            color: #6366f1;
+            padding: 20px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .create-acount{
+            background-color: #6366f1;
+            color: white;
+            padding: 20px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .stats {
+            padding: 3rem 2rem;
+            background: var(--white);
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: var(--light-gray);
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        /* FEATURED BOOKS */
+        .featured {
+            padding: 4rem 2rem;
+            background: var(--light-gray);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+
+        .books-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .book-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .book-author {
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .book-rating {
+            display: flex;
+            gap: 0.2rem;
+            color: #fbbf24;
+        }
+
+        .book-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-borrowed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* CATEGORIES */
+        .categories {
+            padding: 4rem 2rem;
+            background: var(--white);
+        }
+
+        .categories-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            padding: 2rem;
+            background: var(--light-gray);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .category-count {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 4rem 2rem;
+            background: var(--light-gray);
+        }
+
+        .steps {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* CTA SECTION */
+        .cta {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap; 
+            a{
+                text-decoration: none;
+            }
+        }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .btn-white:hover {
+            background: var(--light-gray);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            opacity: 0.7;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .cta h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <h2> 📚 BiblioTech</h2>
+            <div class="opcs">
+                <a href="#" class="nav-link">Início</a>
+                <a href="#" class="nav-link">Catálogo</a>
+                <a href="#" class="nav-link">Sobre</a>
+                <a href="#" class="nav-link">Contato</a>
+                <a href="#" class="btn-login">Entrar</a>
+                <a href="#" class="btn-cadastro">Cadastro</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="hero-section">
+            <h1>Seu Conhecimento ao Alcance</h1>
+            <p>Descubra milhares de livros, faça empréstimos online e expanda seus horizontes</p>
+            <div class="search">
+                <input type="text" name="search" id="isearch" class="search-field" placeholder="Buscar por titulo, autor ou ISBN">
+                <button type="submit" class="btn-search">Buscar</button>
+            </div>
+            <div class="btns-hero">
+                <a href="#"><button class="explore-catalogo">Explorar catálogo</button></a>
+                <a href="#"><button class="create-acount">Criar conta grátis</button></a>
+            </div>
+        </section>
+        <section class="stats">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="stat-books">5.234</div>
+                <div class="stat-label">Livros Disponíveis</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-users">1.892</div>
+                <div class="stat-label">Usuários Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-loans">327</div>
+                <div class="stat-label">Empréstimos Este Mês</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4.8★</div>
+                <div class="stat-label">Avaliação Média</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED BOOKS -->
+    <section class="featured" id="catalog">
+        <h2 class="section-title">Livros em Destaque</h2>
+        <div class="books-grid">
+            <div class="book-card">
+                <div class="book-cover">📖</div>
+                <div class="book-info">
+                    <div class="book-title">1984</div>
+                    <div class="book-author">George Orwell</div>
+                    <div class="book-meta">
+                        <div class="book-rating">★★★★★</div>
+                        <span class="book-status status-available">Disponível</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-cover">📕</div>
+                <div class="book-info">
+                    <div class="book-title">Dom Casmurro</div>
+                    <div class="book-author">Machado de Assis</div>
+                    <div class="book-meta">
+                        <div class="book-rating">★★★★☆</div>
+                        <span class="book-status status-available">Disponível</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-cover">💻</div>
+                <div class="book-info">
+                    <div class="book-title">Clean Code</div>
+                    <div class="book-author">Robert C. Martin</div>
+                    <div class="book-meta">
+                        <div class="book-rating">★★★★★</div>
+                        <span class="book-status status-borrowed">Emprestado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="book-cover">⚔️</div>
+                <div class="book-info">
+                    <div class="book-title">O Senhor dos Anéis</div>
+                    <div class="book-author">J.R.R. Tolkien</div>
+                    <div class="book-meta">
+                        <div class="book-rating">★★★★★</div>
+                        <span class="book-status status-available">Disponível</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="categories">
+        <h2 class="section-title">Explore por Categoria</h2>
+        <div class="categories-grid">
+            <div class="category-card">
+                <div class="category-icon">📚</div>
+                <div class="category-name">Literatura</div>
+                <div class="category-count">834 livros</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">💻</div>
+                <div class="category-name">Tecnologia</div>
+                <div class="category-count">512 livros</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🔬</div>
+                <div class="category-name">Ciências</div>
+                <div class="category-count">623 livros</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🎨</div>
+                <div class="category-name">Artes</div>
+                <div class="category-count">289 livros</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">⚖️</div>
+                <div class="category-name">Direito</div>
+                <div class="category-count">445 livros</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🏛️</div>
+                <div class="category-name">História</div>
+                <div class="category-count">567 livros</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works" id="about">
+        <h2 class="section-title">Como Funciona</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Cadastre-se</h3>
+                <p>Crie sua conta gratuitamente em menos de 2 minutos. É rápido, fácil e seguro.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Escolha seu Livro</h3>
+                <p>Navegue pelo nosso catálogo com mais de 5 mil títulos e encontre o livro perfeito.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Faça o Empréstimo</h3>
+                <p>Solicite o empréstimo online e retire na biblioteca ou receba em casa.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Pronto para Começar?</h2>
+        <p>Junte-se a milhares de leitores e tenha acesso ilimitado ao conhecimento</p>
+        <div class="cta-buttons">
+            <a href="#register" class="create-acount">Criar Conta Grátis</a>
+            <a href="#catalog" class="explore-catalogo">Ver Catálogo Completo</a>
+        </div>
+    </section>
+</main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>📚 BiblioTech</h3>
+                <p>Sua biblioteca digital, conectando leitores ao conhecimento desde 2026.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Links Rápidos</h3>
+                <ul class="footer-links">
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#catalog">Catálogo</a></li>
+                    <li><a href="#about">Sobre</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Suporte</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Como Funciona</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contato</h3>
+                <ul class="footer-links">
+                    <li>📧 contato@bibliotech.com</li>
+                    <li>📱 (11) 9999-9999</li>
+                    <li>📍 São Paulo, SP</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 BiblioTech. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = "http://localhost:3000/api";
+        loadData();
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Search functionality (exemplo)
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const searchTerm = document.querySelector('.search-input').value;
+            if (searchTerm) {
+                alert('Buscando por: ' + searchTerm);
+                // chamada para a API
+            }
+        });
+
+        // Category click
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.querySelector('.category-name').textContent;
+                alert('Filtrar por: ' + category);
+                // Redirecionar para catálogo filtrado
+            });
+        });
+        async function loadData(){
+            loadBooksAvailable();
+            loadUsersActive();
+            loadLoans();
+        }
+        async function loadBooksAvailable(){
+            const res = await fetch(`${API_URL}/books/available`);
+            const data = await res.json();
+
+            document.getElementById('stat-books').innerText = data.length;
+        }
+        async function loadUsersActive(){
+            const res = await fetch(`${API_URL}/users/users-active`);
+            const data = await res.json();
+            if(!res.ok){
+                console.log(data.error);
+                return;
+            }
+            document.getElementById('stat-users').innerText = data.length;
+        }
+        async function loadLoans(){
+            const res = await fetch(`${API_URL}/loans/length`);
+            const data = await res.json();
+            if(!res.ok){
+                console.error(data.error);
+                return;
+            }
+            document.getElementById('stat-loans').innerText = data.length;
+        }
+    </script>
+</body>
+</html>

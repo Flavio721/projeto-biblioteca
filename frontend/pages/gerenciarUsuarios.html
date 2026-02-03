@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários - BiblioTech</title>
+    <style>
+
+        :root {
+            /* Brand */
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            /* Backgrounds */
+            --bg-page: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-muted: #e5e7eb;
+
+            /* Text */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverse: #ffffff;
+
+            /* Borders */
+            --border-color: #e2e8f0;
+
+            /* Effects */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+            }
+
+        [data-theme="dark"] {
+        /* Brand */
+        --primary: #818cf8;
+        --primary-hover: #6366f1;
+        --secondary: #f472b6;
+        --accent: #34d399;
+
+        /* Backgrounds */
+        --bg-page: #020617;
+        --bg-surface: #0f172a;
+        --bg-muted: #1e293b;
+
+        /* Text */
+        --text-primary: #e5e7eb;
+        --text-secondary: #9ca3af;
+        --text-inverse: #020617;
+
+        /* Borders */
+        --border-color: #1e293b;
+
+        /* Effects */
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.6);
+        --shadow-lg: 0 8px 16px rgba(0,0,0,0.8);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-muted);
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-surface);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .toolbar {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-surface);
+            box-shadow: 0px 2px var(--shadow-lg);
+        }
+
+        table {
+            width: 100%;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: var(--bg-page);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .role-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: var(--bg-surface);
+        }
+
+        .role-user { background: #dbeafe; color: #1e40af; }
+        .role-librarian { background: #fef3c7; color: #92400e; }
+        .role-admin { background: #fce7f3; color: #9f1239; }
+
+        select {
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+
+        .status-active { color: #10b981; }
+        .status-inactive { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div style="padding: 0 1.5rem 1.5rem; font-size: 1.5rem; font-weight: bold;">
+            📚 BiblioTech
+        </div>
+        <a href="" id="dashboard-link">
+            <div style="padding: 1rem 1.5rem; cursor: pointer; color: rgba(255,255,255,0.7);">
+                📊 Dashboard
+            </div>
+        </a>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; color: rgba(255,255,255,0.7);" onclick="location.href='/gerenciar/livros'">
+            📚 Livros
+        </div>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; background: rgba(99,102,241,0.2); color: #6366f1;">
+            👥 Usuários
+        </div>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; color: rgba(255,255,255,0.7);" onclick="location.href='/gerenciar/emprestimos'">
+            📋 Empréstimos
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="header">
+            <h1>Gerenciar Usuários</h1>
+            <p style="color: #64748b;">Controle de permissões e status</p>
+        </div>
+
+        <div class="toolbar">
+            <input type="text" class="search-input" placeholder="Buscar usuários..." oninput="searchUsers()">
+            <select onchange="filterByRole()">
+                <option value="">Todas as Roles</option>
+                <option value="USER">Usuário</option>
+                <option value="LIBRARIAN">Bibliotecário</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+            <select onchange="filterByStatus()">
+                <option value="">Todos Status</option>
+                <option value="true">Ativo</option>
+                <option value="false">Inativo</option>
+            </select>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Cadastro</th>
+                    <th>Empréstimos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="usersTable">
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 3rem;">
+                        Carregando usuários...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let allUsers = [];
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(!response.ok){
+                    throw new Error("Não autorizado");
+                }
+                const data = await response.json();
+                allUsers = data.users;
+                displayUsers(allUsers);
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    dashboardRedirect(data.user.role);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>#${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <select onchange="changeRole(${user.id}, this.value)">
+                            <option value="USER" ${user.role === 'USER' ? 'selected' : ''}>Usuário</option>
+                            <option value="LIBRARIAN" ${user.role === 'LIBRARIAN' ? 'selected' : ''}>Bibliotecário</option>
+                            <option value="ADMIN" ${user.role === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </td>
+                    <td class="${user.isActive ? 'status-active' : 'status-inactive'}">
+                        ${user.isActive ? '✓ Ativo' : '✕ Inativo'}
+                    </td>
+                    <td>${formatDate(user.createdAt)}</td>
+                    <td>${user._count?.loans || 0}</td>
+                    <td>
+                        ${user.isActive ?
+                            `<button class="btn btn-danger" onclick="toggleStatus(${user.id}, false)">Desativar</button>` :
+                            `<button class="btn btn-success" onclick="toggleStatus(${user.id}, true)">Ativar</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function changeRole(userId, newRole) {
+            if (!confirm(`Alterar role do usuário para ${newRole}?`)) {
+                loadUsers();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}/role`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (response.ok) {
+                    alert('Role atualizada!');
+                    loadUsers();
+                } else {
+                    alert('Erro ao atualizar');
+                    loadUsers();
+                }
+            } catch (error) {
+                alert('Erro');
+                loadUsers();
+            }
+        }
+
+        async function toggleStatus(userId, newStatus) {
+            const action = newStatus ? 'ativar' : 'desativar';
+            if (!confirm(`Tem certeza que deseja ${action} este usuário?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ isActive: newStatus })
+                });
+
+                if (response.ok) {
+                    alert(`Usuário ${action}do!`);
+                    loadUsers();
+                } else {
+                    alert('Erro');
+                }
+            } catch (error) {
+                alert('Erro');
+            }
+        }
+
+        function searchUsers() {
+            const search = event.target.value.toLowerCase();
+            const filtered = allUsers.filter(user =>
+                user.name.toLowerCase().includes(search) ||
+                user.email.toLowerCase().includes(search)
+            );
+            displayUsers(filtered);
+        }
+
+        function filterByRole() {
+            const role = event.target.value;
+            if (!role) {
+                displayUsers(allUsers);
+                return;
+            }
+            const filtered = allUsers.filter(user => user.role === role);
+            displayUsers(filtered);
+        }
+
+        function filterByStatus() {
+            const status = event.target.value;
+            if (status === '') {
+                displayUsers(allUsers);
+                return;
+            }
+            const isActive = status === 'true';
+            const filtered = allUsers.filter(user => user.isActive === isActive);
+            displayUsers(filtered);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('pt-BR');
+        }
+
+        loadUsers();
+        loadUserData();
+    </script>
+</body>
+</html>

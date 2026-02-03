@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios - BiblioTech</title>
+    <style>
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f1f5f9;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            background: #1e293b;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .report-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid #6366f1;
+            color: #6366f1;
+        }
+        #chartArea {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        #chartArea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chartArea::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .stat-label {
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div style="padding: 0 1.5rem 1.5rem; font-size: 1.5rem; font-weight: bold;">
+            📚 BiblioTech
+        </div>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; color: rgba(255,255,255,0.7);" id="dashboard-link">
+            📊 Dashboard
+        </div>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; background: rgba(99,102,241,0.2); color: #6366f1;">
+            📈 Relatórios
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="header">
+            <h1>Relatórios e Estatísticas</h1>
+            <p style="color: #64748b;">Análises e insights sobre a biblioteca</p>
+        </div>
+
+        <!-- TIPOS DE RELATÓRIOS -->
+        <div class="report-grid">
+            <div class="report-card" data-report="loans">
+                <div class="report-icon">📋</div>
+                <div class="report-title">Empréstimos por Período</div>
+                <div class="report-description">Análise detalhada de empréstimos realizados</div>
+            </div>
+
+            <div class="report-card" data-report="popular">
+                <div class="report-icon">⭐</div>
+                <div class="report-title">Livros Mais Populares</div>
+                <div class="report-description">Ranking dos livros mais emprestados</div>
+            </div>
+
+            <div class="report-card" data-report="users">
+                <div class="report-icon">👥</div>
+                <div class="report-title">Usuários Mais Ativos</div>
+                <div class="report-description">Top leitores da biblioteca</div>
+            </div>
+
+            <div class="report-card" data-report="overdue">
+                <div class="report-icon">⚠️</div>
+                <div class="report-title">Empréstimos Atrasados</div>
+                <div class="report-description">Análise de atrasos e multas</div>
+            </div>
+
+            <div class="report-card" data-report="categories">
+                <div class="report-icon">📚</div>
+                <div class="report-title">Categorias Mais Lidas</div>
+                <div class="report-description">Preferências por categoria</div>
+            </div>
+
+            <div class="report-card" data-report="revenue">
+                <div class="report-icon">💰</div>
+                <div class="report-title">Multas Arrecadadas</div>
+                <div class="report-description">Relatório financeiro de multas</div>
+            </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filters">
+            <h3 style="margin-bottom: 1.5rem;">🔍 Filtros</h3>
+            <div class="filter-group">
+                <div>
+                    <label class="form-label">Data Início</label>
+                    <input type="date" class="form-input" id="startDate">
+                </div>
+                <div>
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" class="form-input" id="endDate">
+                </div>
+                <div>
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="category">
+                        <option value="">Todas</option>
+                        <option value="Literatura">Literatura</option>
+                        <option value="Tecnologia">Tecnologia</option>
+                        <option value="Ciências">Ciências</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="status">
+                        <option value="">Todos</option>
+                        <option value="ACTIVE">Ativo</option>
+                        <option value="RETURNED">Devolvido</option>
+                        <option value="OVERDUE">Atrasado</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="generateReport()">
+                    📊 Gerar Relatório
+                </button>
+                <button class="btn btn-outline" onclick="exportPDF()">
+                    📄 Exportar PDF
+                </button>
+                <button class="btn btn-outline" onclick="exportExcel()">
+                    📊 Exportar Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- ESTATÍSTICAS RÁPIDAS -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value" id="totalLoans">0</div>
+                <div class="stat-label">Total de Empréstimos</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="activeLoans">0</div>
+                <div class="stat-label">Empréstimos Ativos</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="overdueLoans">0</div>
+                <div class="stat-label">Atrasados</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="returnRate">0%</div>
+                <div class="stat-label">Taxa de Devolução</div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO -->
+        <div class="chart-container">
+            <h3 class="chart-title">📈 Empréstimos por Mês</h3>
+            <div class="chart-placeholder" id="chartArea">
+                Selecione um tipo de relatório acima para visualizar os dados
+            </div>
+        </div>
+
+        <!-- TABELA DE DADOS -->
+        <div class="chart-container">
+            <h3 class="chart-title">📋 Dados Detalhados</h3>
+            <table id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Percentual</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 3rem;">
+                            Nenhum relatório gerado ainda
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let activeReport = null;
+
+        // Definir datas padrão (último mês)
+        const today = new Date();
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+        document.getElementById('endDate').valueAsDate = today;
+        document.getElementById('startDate').valueAsDate = lastMonth;
+
+        function loadStats() {
+            loadTotalLoans();
+            loadActiveLoans();
+            loadOverdueLoans();
+            loadReturnRate();
+        }
+        async function loadTotalLoans(){
+            const res = await fetch(`${API_URL}/loans/length`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            document.getElementById('totalLoans').innerText = data.length
+        }
+        async function loadActiveLoans(){
+            const res = await fetch(`${API_URL}/loans/lengthActive`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            document.getElementById('activeLoans').innerText = data.length;
+        }
+        async function loadOverdueLoans(){
+            const res = await fetch(`${API_URL}/loans/lengthDelayed`, {
+                headers: { 
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", res.json());
+                return;
+            }
+            document.getElementById('overdueLoans').innerText = data.length;
+        }
+        async function loadReturnRate(){
+            const res = await fetch(`${API_URL}/loans/return-rate`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            document.getElementById('returnRate').innerText = `${data.rate.toFixed(2)}%`;
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    dashboardRedirect(data.user.role);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        document.querySelectorAll('.report-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const type = card.dataset.report;
+                activeReport = type;
+                showReport(type);
+                turnActive(card);
+            });
+        });
+        function generateReport(){
+            if (activeReport === 'loans') {
+                generateReportLoans();
+            }
+            else if(activeReport === 'popular'){
+                generatePopularBooks();
+            }
+            else if(activeReport === 'users'){
+                generatePopularUsers();
+            }
+            else if(activeReport === 'overdue'){
+                generateOverdueLoans();
+            }
+            else if(activeReport === 'categories'){
+                generatePopularCategorie();
+            }
+            else if(activeReport === 'revenue'){
+                generateAllFines();
+            }
+        }
+        function turnActive(element) {
+            const container = element.closest('.report-grid');
+            const prevElement = container.querySelector('.report-card.active');
+
+            if (prevElement) {
+                prevElement.classList.remove('active');
+            }
+
+            element.classList.add('active');
+        }
+
+
+        function showReport(type) {
+            const titles = {
+                'loans': 'Empréstimos por Período',
+                'popular': 'Livros Mais Populares',
+                'users': 'Usuários Mais Ativos',
+                'overdue': 'Empréstimos Atrasados',
+                'categories': 'Categorias Mais Lidas',
+                'revenue': 'Multas Arrecadadas'
+            };
+
+            document.querySelector('.chart-title').textContent = '📈 ' + titles[type];
+            
+            
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = `
+                <div style="padding: 2rem;">
+                    <p style="margin-bottom: 1rem;">Relatório: <strong>${titles[type]}</strong></p>
+                    <div style="background: white; padding: 1rem; border-left: 4px solid #6366f1;">
+                        Visualização de gráfico em desenvolvimento. 
+                        Use os botões de exportar para gerar relatórios completos.
+                    </div>
+                </div>
+            `;
+        }
+        async function fetchLoansByPeriod(startDate, endDate) {
+            const res = await fetch(
+                `${API_URL}/loans/by-date?startDate=${startDate}&endDate=${endDate}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Erro ao buscar empréstimos');
+            }
+            return data;
+        }
+        function renderLoansReport(loans) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (loans.length === 0) {
+                chartArea.innerHTML = `
+                    <div style="text-align:center; padding:3rem; color:#64748b;">
+                        📭 Nenhum empréstimo encontrado no período selecionado
+                    </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th style="padding:1rem;">Usuário</th>
+                                <th style="padding:1rem;">Livro</th>
+                                <th style="padding:1rem;">Status</th>
+                                <th style="padding:1rem;">Data</th>
+                                <th style="padding:1rem;">Devolução</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${loans.map(loan => `
+                                <tr style="border-bottom:1px solid #f1f5f9;">
+                                    <td style="padding:1rem;">
+                                        ${loan.user.name}
+                                    </td>
+                                    <td style="padding:1rem;">
+                                        ${loan.book.title}
+                                    </td>
+                                    <td style="padding:1rem;">
+                                        <strong>${loan.status}</strong>
+                                    </td>
+                                    <td style="padding:1rem;">
+                                        ${formatDate(loan.createdAt)}
+                                    </td>
+                                    <td style="padding:1rem;">
+                                        ${loan.dueDate ? formatDate(loan.dueDate) : '-'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        async function generateReportLoans() {
+            if (activeReport !== 'loans') {
+                alert('Este relatório não utiliza filtro por data.');
+                return;
+            }
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('Selecione as datas para gerar o relatório');
+                return;
+            }
+
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const loans = await fetchLoansByPeriod(startDate, endDate);
+                renderLoansReport(loans);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+        async function fetchPopularBooks(){
+            try{
+                const res = await fetch(`${API_URL}/books/popular-books`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                }
+                return data;
+            } catch(error) {
+                console.error("Erro: ", error);
+            }
+        }
+        function renderPopularBooksReport(books) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (!books || books.length === 0) {
+                chartArea.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    📭 Nenhum empréstimo registrado
+                </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:1rem;">#</th>
+                        <th style="padding:1rem;">Livro</th>
+                        <th style="padding:1rem;">Autor</th>
+                        <th style="padding:1rem;">Total de Empréstimos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${books.map((book, index) => `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:1rem;">
+                            ${index + 1}
+                        </td>
+                        <td style="padding:1rem;">
+                            <strong>${book.title}</strong>
+                        </td>
+                        <td style="padding:1rem;">
+                            ${book.author ?? '-'}
+                        </td>
+                        <td style="padding:1rem; text-align:center;">
+                            📚 ${book._count.loans}
+                        </td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            `;
+        }
+        async function generatePopularBooks() {
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const data = await fetchPopularBooks();
+                renderPopularBooksReport(data.books);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+
+        async function fetchPopularUsers(){
+            try{
+                const res = await fetch(`${API_URL}/users/popular-users`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                }
+                return data;
+            } catch(error) {
+                console.error("Erro: ", error);
+            }
+        }
+        function renderPopularUsersReport(users) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (!users || users.length === 0) {
+                chartArea.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    📭 Nenhum empréstimo registrado
+                </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:1rem;">#</th>
+                        <th style="padding:1rem;">Nome</th>
+                        <th style="padding:1rem;">Email</th>
+                        <th style="padding:1rem;">Total de Empréstimos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${users.map((user, index) => `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:1rem;">
+                            ${index + 1}
+                        </td>
+                        <td style="padding:1rem;">
+                            <strong>${user.name}</strong>
+                        </td>
+                        <td style="padding:1rem;">
+                            ${user.email ?? '-'}
+                        </td>
+                        <td style="padding:1rem; text-align:center;">
+                            📚 ${user.totalLoans}
+                        </td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            `;
+        }
+        async function generatePopularUsers() {
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const data = await fetchPopularUsers();
+                renderPopularUsersReport(data.users);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+        async function fetchOverdueLoans(){
+            const res = await fetch(`${API_URL}/loans/overdue`, {
+                headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            console.log(data.overdue)
+            return data;
+        }
+        function renderOverdueLoans(loans) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (!loans || loans.length === 0) {
+                chartArea.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    📭 Nenhum empréstimo registrado
+                </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:1rem;">#</th>
+                        <th style="padding:1rem;">Nome</th>
+                        <th style="padding:1rem;">Data de empréstimo</th>
+                        <th style="padding:1rem;">Data estimada</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${loans.map((loan, index) => {
+                        const loanDate = new Date(loan.loanDate).toLocaleDateString('pt-BR');
+                        const dueDate = new Date(loan.dueDate).toLocaleDateString('pt-BR');
+                        
+                        return `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:1rem;">
+                            ${index + 1}
+                        </td>
+                        <td style="padding:1rem;">
+                            <strong>${loan.user?.name || 'Usuário não encontrado'}</strong>
+                        </td>
+                        <td style="padding:1rem;">
+                            ${loanDate}
+                        </td>
+                        <td style="padding:1rem; text-align:center;">
+                            ${dueDate}
+                        </td>
+                        </tr>
+                        `;
+                    }).join('')}
+                    </tbody>
+                </table>
+                </div>
+            `;
+        }
+        async function generateOverdueLoans() {
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const data = await fetchOverdueLoans();
+                renderOverdueLoans(data.overdue);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+        async function fetchPopularCategorie(){
+            const res = await fetch(`${API_URL}/books/popular-categorie`, {
+                headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            return data;
+        }
+        function renderPopularCategorie(categories) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (!categories || categories.length === 0) {
+                chartArea.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    📭 Nenhuma categoria encontrada
+                </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:1rem;">#</th>
+                        <th style="padding:1rem;">Categoria</th>
+                        <th style="padding:1rem;">Total de empréstimos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${categories.map((categorie, index) => `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:1rem; text-align:center;">
+                            ${index + 1}
+                        </td>
+                        <td style="padding:1rem;">
+                            <strong>${categorie.category}</strong>
+                        </td>
+                        <td style="padding:1rem; text-align:center;">
+                            📚 ${categorie.totalLoans}
+                        </td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            `;
+        }
+
+        async function generatePopularCategorie() {
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const data = await fetchPopularCategorie();
+                renderPopularCategorie(data);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+        async function fetchAllFines(){
+            const res = await fetch(`${API_URL}/loans/fines`, {
+                headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.error("Erro: ", data.error);
+            }
+            return data;
+        }
+        function renderAllFines(fines) {
+            const chartArea = document.getElementById('chartArea');
+
+            if (!fines || fines.length === 0) {
+                chartArea.innerHTML = `
+                <div style="text-align:center; padding:3rem; color:#64748b;">
+                    📭 Nenhuma categoria encontrada
+                </div>
+                `;
+                return;
+            }
+
+            chartArea.innerHTML = `
+                <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                    <tr style="background:#f1f5f9;">
+                        <th style="padding:1rem;">#</th>
+                        <th style="padding:1rem;">Nome de usuário</th>
+                        <th style="padding:1rem;">Total de multa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${fines.map((fine, index) => `
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:1rem; text-align:center;">
+                            ${index + 1}
+                        </td>
+                        <td style="padding:1rem;">
+                            <strong>${fine.user.name}</strong>
+                        </td>
+                        <td style="padding:1rem; text-align:center;">
+                            ${fine.fineAmount}R$
+                        </td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            `;
+        }
+
+        async function generateAllFines() {
+            const chartArea = document.getElementById('chartArea');
+            chartArea.innerHTML = '⏳ Carregando dados...';
+
+            try {
+                const data = await fetchAllFines();
+                renderAllFines(data.allFines);
+            } catch (error) {
+                chartArea.innerHTML = `
+                    <div style="color:red; padding:2rem;">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                console.error(error.message);
+            }
+        }
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function exportPDF() {
+            alert('Exportando relatório em PDF...\nFuncionalidade em desenvolvimento.');
+        }
+
+        function exportExcel() {
+            alert('Exportando relatório em Excel...\nFuncionalidade em desenvolvimento.');
+        }
+
+        loadStats();
+        loadUserData();
+    </script>
+</body>
+</html>

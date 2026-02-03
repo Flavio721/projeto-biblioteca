@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Livros - BiblioTech</title>
+    <style>
+
+        :root {
+            /* Brand */
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            /* Backgrounds */
+            --bg-page: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-muted: #e5e7eb;
+
+            /* Text */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverse: #ffffff;
+
+            /* Borders */
+            --border-color: #e2e8f0;
+
+            /* Effects */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+            }
+
+        [data-theme="dark"] {
+        /* Brand */
+        --primary: #818cf8;
+        --primary-hover: #6366f1;
+        --secondary: #f472b6;
+        --accent: #34d399;
+
+        /* Backgrounds */
+        --bg-page: #020617;
+        --bg-surface: #0f172a;
+        --bg-muted: #1e293b;
+
+        /* Text */
+        --text-primary: #e5e7eb;
+        --text-secondary: #9ca3af;
+        --text-inverse: #020617;
+
+        /* Borders */
+        --border-color: #1e293b;
+
+        /* Effects */
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.6);
+        --shadow-lg: 0 8px 16px rgba(0,0,0,0.8);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-muted);
+            color: white;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--shadow-lg);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .menu-item {
+            padding: 0.875rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .menu-item.active {
+            background: rgba(99,102,241,0.2);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-muted);
+            color: var(--text-primary);
+        }
+        .search-input::placeholder{
+            color: var(--text-primary);
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-muted);
+            color: var(--text-primary);
+        }
+
+        /* TABLE */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:hover {
+            background: var(--light);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-borrowed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+        .btn-ed {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            color: var(--primary);
+            border: none;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light);
+            border-radius: 8px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">📚 BiblioTech</div>
+        </div>
+        <nav>
+            <a href="" id="dashboard-link">
+                <div class="menu-item">
+                    📊 Dashboard
+                </div>
+            </a>
+            <div class="menu-item active">
+                📚 Livros
+            </div>
+            <div class="menu-item" onclick="window.location.href='/gerenciar/usuarios'">
+                👥 Usuários
+            </div>
+            <div class="menu-item" onclick="window.location.href='/gerenciar/emprestimos'">
+                📋 Empréstimos
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1>Gerenciar Livros</h1>
+                <p style="color: var(--gray);">Controle completo do acervo</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()">
+                ➕ Adicionar Livro
+            </button>
+        </div>
+
+        <div class="toolbar">
+            <input type="text" class="search-input" placeholder="Buscar livros..." id="searchInput" oninput="searchBooks()">
+            <select class="filter-select" onchange="filterBooks()">
+                <option value="">Todas Categorias</option>
+                <option value="Literatura">Literatura</option>
+                <option value="Tecnologia">Tecnologia</option>
+                <option value="Ciências">Ciências</option>
+            </select>
+            <select class="filter-select" onchange="filterBooks()">
+                <option value="">Todos Status</option>
+                <option value="AVAILABLE">Disponível</option>
+                <option value="BORROWED">Emprestado</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ISBN</th>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Categoria</th>
+                        <th>Qtd</th>
+                        <th>Disponível</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="booksTable">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            Carregando livros...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- MODAL -->
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Adicionar Livro</h2>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <form id="bookForm" onsubmit="saveBook(event)">
+                <div class="form-group">
+                    <label class="form-label">ISBN</label>
+                    <input type="text" class="form-input" id="isbn" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título</label>
+                    <input type="text" class="form-input" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Autor</label>
+                    <input type="text" class="form-input" id="author" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Editora</label>
+                    <input type="text" class="form-input" id="publisher">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ano</label>
+                    <input type="number" class="form-input" id="year">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <input type="text" class="form-input" id="category" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-input" id="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Páginas</label>
+                    <input type="number" class="form-input" id="pages">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quantidade</label>
+                    <input type="number" class="form-input" id="quantity" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Localização</label>
+                    <input type="text" class="form-input" id="location" placeholder="Ex: Estante A, Prateleira 2">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let currentBookId = null;
+        let allBooks = [];
+
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API_URL}/books`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(!response.ok){
+                    throw new Error("Não autorizado");
+                }
+                const data = await response.json();
+                allBooks = data.books
+                displayBooks(allBooks);
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    dashboardRedirect(data.user.role);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        function displayBooks(books) {
+            const tbody = document.getElementById('booksTable');
+            
+            if (!books || books.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            Nenhum livro encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td>${book.isbn}</td>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.category}</td>
+                    <td>${book.quantity}</td>
+                    <td>${book.availableQty}</td>
+                    <td>
+                        <span class="status-badge status-${book.availableQty > 0 ? 'available' : 'borrowed'}">
+                            ${book.availableQty > 0 ? 'Disponível' : 'Emprestado'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-outline btn-ed" onclick="editBook(${book.id})">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">
+                                🗑️ Deletar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openModal() {
+            currentBookId = null;
+            document.getElementById('modalTitle').textContent = 'Adicionar Livro';
+            document.getElementById('bookForm').reset();
+            document.getElementById('bookModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').classList.remove('active');
+        }
+        
+
+        async function editBook(id) {
+            const book = allBooks.find(b => b.id === id);
+            if (!book) return;
+
+            currentBookId = id;
+            document.getElementById('modalTitle').textContent = 'Editar Livro';
+            document.getElementById('isbn').value = book.isbn;
+            document.getElementById('title').value = book.title;
+            document.getElementById('author').value = book.author;
+            document.getElementById('publisher').value = book.publisher || '';
+            document.getElementById('year').value = book.publishYear || '';
+            document.getElementById('category').value = book.category;
+            document.getElementById('description').value = book.description || '';
+            document.getElementById('pages').value = book.pages || '';
+            document.getElementById('quantity').value = book.quantity;
+            document.getElementById('location').value = book.location || '';
+
+            document.getElementById('bookModal').classList.add('active');
+        }
+
+        async function saveBook(event) {
+            event.preventDefault();
+
+            const data = {
+                isbn: document.getElementById('isbn').value,
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                publisher: document.getElementById('publisher').value,
+                publishYear: parseInt(document.getElementById('year').value) || null,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                pages: parseInt(document.getElementById('pages').value) || null,
+                quantity: parseInt(document.getElementById('quantity').value),
+                location: document.getElementById('location').value
+            };
+
+            try {
+                const url = currentBookId 
+                    ? `${API_URL}/books/${currentBookId}`
+                    : `${API_URL}/books`;
+                
+                const method = currentBookId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert(currentBookId ? 'Livro atualizado!' : 'Livro adicionado!');
+                    closeModal();
+                    loadBooks();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Erro ao salvar');
+                }
+            } catch (error) {
+                alert('Erro ao conectar com servidor');
+            }
+        }
+
+        async function deleteBook(id) {
+            if (!confirm('Tem certeza que deseja deletar este livro?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/books/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    alert('Livro deletado!');
+                    loadBooks();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Erro ao deletar');
+                }
+            } catch (error) {
+                alert('Erro ao deletar');
+            }
+        }
+
+        function searchBooks() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allBooks.filter(book => 
+                book.title.toLowerCase().includes(search) ||
+                book.author.toLowerCase().includes(search) ||
+                book.isbn.includes(search)
+            );
+            displayBooks(filtered);
+        }
+
+        function filterBooks() {
+            // Implementar filtros
+            loadBooks();
+        }
+
+        loadBooks();
+        loadUserData();
+    </script>
+</body>
+</html>

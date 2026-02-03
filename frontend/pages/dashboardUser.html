@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BiblioTech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* HEADER */
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .welcome {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .stat-icon.primary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.accent {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+        }
+
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-icon.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .stat-change.positive {
+            color: var(--accent);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* CONTENT GRID */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* SECTION */
+        .section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .section-action {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .section-action:hover {
+            text-decoration: underline;
+        }
+
+        /* LOAN CARD */
+        .loan-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .loan-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .loan-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .loan-cover {
+            width: 80px;
+            height: 110px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .loan-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .loan-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .loan-author {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loan-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .loan-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .loan-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--light-gray);
+            color: var(--gray);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        /* ACTIVITY ITEM */
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* RECOMMENDATIONS */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .recommendation-card {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .recommendation-card:hover {
+            transform: scale(1.05);
+        }
+
+        .recommendation-cover {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: -webkit-box;
+            /* -webkit-line-clamp: 2; */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+            border: 2px solid var(--light-gray);
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+        }
+
+        .action-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .loan-card {
+                flex-direction: column;
+            }
+
+            .loan-actions {
+                flex-direction: row;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="window.location.href='/dashboardUser'">📚 BiblioTech</div>
+            
+            <div class="nav-menu">
+                <a href="/dashboardUser" class="nav-link active">Dashboard</a>
+                <a href="/catalogo" class="nav-link">Catálogo</a>
+                <a href="/my-emprestimos" class="nav-link">Meus Empréstimos</a>
+                <a href="/favoritos" class="nav-link">Favoritos</a>
+            </div>
+
+            <div class="user-menu">
+                <div class="user-avatar"  id="user-avatar" onclick="window.location.href='/perfil'">M</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <div class="dashboard-header">
+            <h1 class="welcome" id="welcome"></h1>
+            <p class="subtitle">Bem-vindo(a) de volta. Aqui está um resumo da sua biblioteca.</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card" onclick="window.location.href='/my-emprestimos'">
+                <div class="stat-icon primary">📚</div>
+                <div class="stat-content">
+                    <div class="stat-label">Empréstimos Ativos</div>
+                    <div class="stat-value" id="activeLoans">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon accent">✓</div>
+                <div class="stat-content">
+                    <div class="stat-label">Livros Lidos</div>
+                    <div class="stat-value" id="booksRead">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="window.location.href='/favoritos'">
+                <div class="stat-icon warning">❤️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Favoritos</div>
+                    <div class="stat-value" id="favorites">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon danger">⚠️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Devoluções Próximas</div>
+                    <div class="stat-value" id="dueSoon">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div id="alertsContainer"></div>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+            <!-- LEFT COLUMN -->
+            <div>
+                <!-- ACTIVE LOANS -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Empréstimos Ativos</h2>
+                        <a href="/my-emprestimos" class="section-action">Ver todos →</a>
+                    </div>
+                    <div id="activeLoansContainer">
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <p>Você não possui empréstimos ativos no momento</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECOMMENDATIONS -->
+                <div class="section" style="margin-top: 2rem;">
+                    <div class="section-header">
+                        <h2 class="section-title">Recomendações para Você</h2>
+                        <a href="/catalogo" class="section-action">Ver mais →</a>
+                    </div>
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                        <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    <div class="recommendation-card" onclick="viewBookDetails()">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div>
+                <!-- QUICK ACTIONS -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Ações Rápidas</h2>
+                    </div>
+                    <div class="quick-actions">
+                        <div class="action-btn" onclick="window.location.href='/catalogo'">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-label">Buscar Livros</div>
+                        </div>
+                        <div class="action-btn" onclick="window.location.href='/my-emprestimos'">
+                            <div class="action-icon">📋</div>
+                            <div class="action-label">Meus Empréstimos</div>
+                        </div>
+                        <div class="action-btn" onclick="window.location.href='/perfil'">
+                            <div class="action-icon">👤</div>
+                            <div class="action-label">Meu Perfil</div>
+                        </div>
+                        <div class="action-btn" onclick="window.location.href='/favoritos'">
+                            <div class="action-icon">❤️</div>
+                            <div class="action-label">Favoritos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT ACTIVITY -->
+                <div class="section" style="margin-top: 2rem;">
+                    <div class="section-header">
+                        <h2 class="section-title">Atividade Recente</h2>
+                    </div>
+                    <div id="activityContainer">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Verificar autenticação
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // Carregar dados do dashboard
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUserName();
+            loadDashboardData();
+        });
+        async function loadUserName(){
+            try{
+                const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}`}
+                });
+
+                if(!res.ok){
+                    throw new Error("Não autorizado")
+
+                }
+                const data = await res.json();
+                const name = data?.user?.name || '';
+                fetchRecentActivity();
+                
+                document.getElementById('user-avatar').innerText = name.trim().charAt(0).toUpperCase() || '?';
+                document.getElementById('welcome').innerText = `Olá, ${data.user.name}! 👋`
+                
+            }
+            catch(error){
+                console.log("Erro ao carregar usuário ", error);
+                window.location.href = '/login';
+            }
+        }
+        async function loadDashboardData() {
+            try {
+                // Carregar empréstimos ativos
+                const loansResponse = await fetch(`${API_URL}/loans/my-loans`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const loansData = await loansResponse.json();
+                
+                if (loansData.loans) {
+                    const activeLoans = loansData.loans.filter(l => l.status === 'ACTIVE');
+                    displayActiveLoans(activeLoans);
+                    updateStats(activeLoans);
+                    checkOverdueLoans(activeLoans);
+                }
+
+                // Carregar foto de perfil
+                loadProfileAvatar();
+
+                // Carregar recomendações
+                loadRecommendations();
+
+                // Carregar quantidade de favoritos
+                loadFavorites();
+                
+                // Carregar atividades recentes
+                loadRecentActivity();
+
+                // Carregar livros lidos
+                loadBooksRead();
+
+            } catch (error) {
+                console.error('Erro ao carregar dashboard:', error);
+            }
+        }
+        async function loadProfileAvatar(){
+            const res = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}`}
+                }
+            );
+            const data = await res.json();
+            if(!res.ok){
+                console.log("Erro: ", data.error);
+            }
+            const avatar = document.getElementById('user-avatar');
+            if (data.user.avatarUrl) {
+                avatar.style.backgroundImage =
+                    `url(${data.user.avatarUrl})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.textContent = '';
+            } else {
+                avatar.textContent = data.user.name.charAt(0).toUpperCase();
+            }
+        }
+        async function loadBooksRead(){
+            const res = await fetch(`${API_URL}/books/books-read`, {
+                headers: { 'Authorization': `Bearer ${token}`}
+            });
+            const data = await res.json();
+            if(!res.ok){
+                console.log("Erro: ", data);
+            }
+            document.getElementById('booksRead').innerText = data.books;
+        }
+        function displayActiveLoans(loans) {
+            const container = document.getElementById('activeLoansContainer');
+            
+            if (loans.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <p>Você não possui empréstimos ativos no momento</p>
+                        <button class="btn-small btn-primary" onclick="window.location.href='/catalogo'" style="margin-top: 1rem;">
+                            Buscar Livros
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = loans.map(loan => `
+                <div class="loan-card">
+                    <div class="loan-cover">${getBookIcon(loan.book.title)}</div>
+                    <div class="loan-info">
+                        <div class="loan-title">${loan.book.title}</div>
+                        <div class="loan-author">${loan.book.author}</div>
+                        <div class="loan-meta">
+                            <div class="loan-meta-item">
+                                📅 Emprestado: ${formatDate(loan.loanDate)}
+                            </div>
+                            <div class="loan-meta-item">
+                                ⏰ Devolução: ${formatDate(loan.dueDate)}
+                            </div>
+                            <div class="loan-meta-item">
+                                🔄 Renovações: ${loan.renewalCount}/2
+                            </div>
+                        </div>
+                    </div>
+                    <div class="loan-actions">
+                        ${loan.renewalCount < 2 ? 
+                            `<button class="btn-small btn-primary" onclick="renewLoan(${loan.id})">Renovar</button>` :
+                            `<button class="btn-small btn-outline" disabled>Limite atingido</button>`
+                        }
+                        <button class="btn-small btn-outline" onclick="viewBookDetails(${loan.book.id})">
+                            Detalhes
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(loans) {
+            document.getElementById('activeLoans').textContent = loans.length;
+            
+            const dueSoon = loans.filter(loan => {
+                const daysUntilDue = Math.ceil((new Date(loan.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+                return daysUntilDue <= 3 && daysUntilDue >= 0;
+            }).length;
+            
+            document.getElementById('dueSoon').textContent = dueSoon;
+        }
+
+        function checkOverdueLoans(loans) {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const now = new Date();
+            
+            const overdue = loans.filter(loan => new Date(loan.dueDate) < now);
+            const dueSoon = loans.filter(loan => {
+                const daysUntilDue = Math.ceil((new Date(loan.dueDate) - now) / (1000 * 60 * 60 * 24));
+                return daysUntilDue <= 3 && daysUntilDue >= 0;
+            });
+
+            let alerts = '';
+
+            if (overdue.length > 0) {
+                alerts += `
+                    <div class="alert alert-danger">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Empréstimos Atrasados!</div>
+                            <div>Você tem ${overdue.length} empréstimo(s) atrasado(s). Por favor, devolva o quanto antes para evitar multas.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (dueSoon.length > 0) {
+                alerts += `
+                    <div class="alert alert-warning">
+                        <div class="alert-icon">⏰</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Devoluções Próximas</div>
+                            <div>Você tem ${dueSoon.length} empréstimo(s) com devolução nos próximos 3 dias.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            alertsContainer.innerHTML = alerts;
+        }
+
+        async function loadRecommendations() {
+            try {
+                const response = await fetch(`${API_URL}/books?limit=6`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('recommendationsGrid');
+                grid.innerHTML = data.books.slice(0, 6).map(book => `
+                    <div class="recommendation-card" onclick="viewBookDetails(${book.id})">
+                        <div class="recommendation-cover">${getBookIcon(book.title)}</div>
+                        <div class="recommendation-title">${book.title}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro ao carregar recomendações:', error);
+            }
+        }
+        async function fetchRecentActivity(){
+            try{
+                const res = await fetch(`${API_URL}/dashboard/my-recent`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    console.log("Erro: ", data.error);
+                    loadRecentActivity(null);
+                    return;
+                }
+                loadRecentActivity(data.recent);
+            }catch(error){
+                console.error("Erro ao buscar atividades: ", error);
+                loadRecentActivity(null);
+            }
+        }
+        function loadRecentActivity(recent) {
+            const container = document.getElementById('activityContainer');
+            if(!recent || recent.length === 0){
+                const activities = [
+                    { icon: '📚', text: 'Você emprestou "Clean Code"', time: 'Há 2 dias' },
+                    { icon: '⭐', text: 'Você avaliou "1984" com 5 estrelas', time: 'Há 5 dias' },
+                    { icon: '❤️', text: 'Você adicionou "Dom Casmurro" aos favoritos', time: 'Há 1 semana' },
+                ];
+
+                const container = document.getElementById('activityContainer');
+                container.innerHTML = activities.map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-icon">${activity.icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${activity.text}</div>
+                            <div class="activity-time">${activity.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+                return;
+            }
+            const activities = recent.map(activity => {
+                const icon = getActivityIcon(activity.action);
+                const text = activity.note || getActivityText(activity);
+                const time = getTimeAgo(activity.createdAt);
+                
+                return { icon, text, time };
+            })
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon">${activity.icon}</div>
+                    <div class="activity-content">
+                        <div class="activity-text">${activity.text}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Função auxiliar para pegar ícone baseado na ação
+        function getActivityIcon(action) {
+            const icons = {
+                'LOAN_CREATED': '📚',
+                'LOAN_RETURNED': '✅',
+                'LOAN_OVERDUE': '⚠️',
+                'FINE_APPLIED': '💰',
+                'FINE_PAID': '💵',
+                'BOOK_FAVORITED': '❤️',
+                'LOGIN': '🔐'
+            };
+            return icons[action] || '📌';
+        }
+
+        // Função auxiliar para gerar texto se não tiver note
+        function getActivityText(activity) {
+            const texts = {
+                'LOAN_CREATED': 'Novo empréstimo realizado',
+                'LOAN_RETURNED': 'Livro devolvido',
+                'LOAN_OVERDUE': 'Empréstimo atrasado',
+                'FINE_APPLIED': 'Multa aplicada',
+                'FINE_PAID': 'Multa paga',
+                'BOOK_FAVORITED': 'Livro favoritado',
+                'LOGIN': 'Login realizado'
+            };
+            return texts[activity.action] || 'Atividade registrada';
+        }
+
+        // Função auxiliar para calcular tempo relativo
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            const intervals = {
+                ano: 31536000,
+                mês: 2592000,
+                semana: 604800,
+                dia: 86400,
+                hora: 3600,
+                minuto: 60
+            };
+            
+            for (let [name, value] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / value);
+                if (interval >= 1) {
+                    return `Há ${interval} ${name}${interval > 1 ? 's' : ''}`;
+                }
+            }
+            
+            return 'Agora mesmo';
+        }
+        async function loadFavorites(){
+            const res = await fetch(`${API_URL}/auth/favorites/count`, {
+                headers: { 'Authorization': `Bearer ${token}`}
+            });
+            if(!res.ok){
+                document.getElementById('favorites').innerText = "Erro!";
+                document.getElementById('favorites').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+            document.getElementById('favorites').innerText = data.total;
+        }
+        // Helper functions
+        function getBookIcon(title) {
+            const icons = ['📕', '📗', '📘', '📙', '📔', '📖', '📚'];
+            return icons[Math.floor(Math.random() * icons.length)];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        async function renewLoan(loanId) {
+            try {
+                const response = await fetch(`${API_URL}/loans/${loanId}/renew`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Empréstimo renovado com sucesso!');
+                    loadDashboardData();
+                } else {
+                    alert(data.error || 'Erro ao renovar empréstimo');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao conectar com o servidor');
+            }
+        }
+
+        function viewBookDetails(bookId) {
+            window.location.href = `/livro/${bookId}`;
+        }
+    </script>
+</body>
+</html>

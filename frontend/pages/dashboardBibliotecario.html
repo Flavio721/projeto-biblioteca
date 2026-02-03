@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Bibliotecário - BiblioTech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-sidebar: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverted: #ffffff;
+
+            --border-light: #e5e7eb;
+            --shadow: rgba(0, 0, 0, 0.05);
+        }
+
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+
+            --bg-main: #020617;
+            --bg-card: #0f172a;
+            --bg-sidebar: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-inverted: #ffffff;
+
+            --border-light: #1e293b;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-sidebar);
+            color: var(--text-inverted);
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            padding: 0.875rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-inverted);
+        }
+
+        .menu-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left: 3px solid white;
+            font-weight: 600;
+            color: var(--text-inverted);
+        }
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--danger);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        /* STATS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        /* LOAN ITEM */
+        .loan-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid var(--light);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .loan-icon {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .loan-info {
+            flex: 1;
+        }
+
+        .loan-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .loan-user {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .loan-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--text-inverted);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--text-inverted);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* ACTIVITY */
+        .activity-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* EMPTY STATE */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main {
+                margin-left: 0;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">📚 BiblioTech</div>
+            <span class="role-badge">Bibliotecário</span>
+        </div>
+        <nav class="menu">
+            <div class="menu-item active">
+                <span>📊</span> Dashboard
+            </div>
+            <div class="menu-item" onclick="location.href='/gerenciar/emprestimos'">
+                <span>📋</span> Empréstimos
+                <span class="menu-badge" id="badgePending"></span>
+            </div>
+            <div class="menu-item" onclick="location.href='/gerenciar/livros'">
+                <span>📚</span> Livros
+            </div>
+            <div class="menu-item">
+                <span>⚠️</span> Atrasados
+                <span class="menu-badge" id="badgeOverdue"></span>
+            </div>
+            <div class="menu-item" onclick="location.href='/perfil'">
+                <span>👤</span> Perfil
+            </div>
+            <div class="menu-item" onclick="logout()">
+                <span>🚪</span> Sair
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <!-- HEADER -->
+        <div class="header">
+            <h1 id="title-header">Olá, Bibliotecário! 👋</h1>
+            <p>Painel de controle e gerenciamento</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="statBooks">0</div>
+                <div class="stat-label">Total de Livros</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statAvailable">0</div>
+                <div class="stat-label">Livros Disponíveis</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statActive">0</div>
+                <div class="stat-label">Empréstimos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statOverdue">0</div>
+                <div class="stat-label">Empréstimos Atrasados</div>
+            </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div id="alerts"></div>
+
+        <!-- GRID -->
+        <div class="grid">
+            <!-- PENDING LOANS -->
+            <div class="card">
+                <h2 class="card-title">Solicitações Pendentes</h2>
+                <div id="pendingLoans">
+                    <div class="empty">
+                        <div class="empty-icon">📋</div>
+                        <p>Nenhuma solicitação pendente</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVITY -->
+            <div class="card">
+                <h2 class="card-title">Atividade Recente</h2>
+                <div id="activity">
+                    <div class="empty">
+                        <div class="empty-icon">📝</div>
+                        <p>Nenhuma atividade</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        
+        // Verificar autenticação
+        if (!token) {
+            window.location.href = '/login';
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+        })
+        // Carregar dados
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Erro ao carregar dados');
+
+                const data = await response.json();
+                updateStats(data.user);
+
+                const res = await fetch(`${API_URL}/loans/pending`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                if(!res.ok){
+                  console.log("Erro: ", res.error);  
+                }
+                const dataLoans = await res.json();
+                showPendingLoans(dataLoans.loans)
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // Atualizar estatísticas
+        function updateStats(stats) {
+            document.getElementById('title-header').innerText = `Olá, ${stats.name}! 👋`;
+            document.getElementById('')
+
+            viewAllLoansActives();
+            viewAllLoansDelayed();
+            viewAllBooks();
+            viewAllBooksAvaliable();
+        }
+
+        // Mostrar alertas
+        function showAlerts(stats) {
+            const container = document.getElementById('alerts');
+            let html = '';
+
+            if (stats.overdueLoans > 0) {
+                html += `
+                    <div class="alert alert-danger">
+                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <div>
+                            <strong>Atenção!</strong>
+                            ${stats.overdueLoans} empréstimo(s) atrasado(s)
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (stats.activeLoans > 5) {
+                html += `
+                    <div class="alert alert-warning">
+                        <span style="font-size: 1.5rem;">📋</span>
+                        <div>
+                            <strong>Solicitações Pendentes</strong>
+                            Existem solicitações aguardando aprovação
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+        async function viewAllBooks(){
+            const res = await fetch(`${API_URL}/books/length`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('statBooks').innerText = "Erro!";
+                document.getElementById('statBooks').style.color = 'red';
+            }
+            const data = await res.json();
+            document.getElementById('statBooks').innerText = data.length;
+        }
+        async function viewAllBooksAvaliable(){
+            const res = await fetch(`${API_URL}/books/available`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('statAvailable').innerText = "Erro!";
+                document.getElementById('statAvailable').style.color = 'red';
+            }
+            const data = await res.json();
+            document.getElementById('statAvailable').innerText = data.length;
+        }
+        async function viewAllLoansActives(){
+            const res = await fetch(`${API_URL}/loans/lengthActive`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('badgePending').innerText = "Erro!";
+                document.getElementById('badgePending').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+
+            document.getElementById('badgePending').innerText = data.length;
+            document.getElementById('statActive').innerText = data.length;
+            localStorage.setItem("totalLoansActive", data.length);
+        }
+        async function viewAllLoansDelayed(){
+            const res = await fetch(`${API_URL}/loans/lengthDelayed`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('badgeOverdue').innerText = "Erro!";
+                document.getElementById('badgeOverdue').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+            document.getElementById('badgeOverdue').innerText = data.length;
+            document.getElementById('statOverdue').innerText = data.length;
+
+            if(data.length > 3){
+                document.getElementById('stat-change').innerText = "Requer atenção";
+            }
+            localStorage.setItem('totalLoansOverdue', data.length);
+        }
+        // Mostrar empréstimos pendentes
+        function showPendingLoans(loans) {
+            const container = document.getElementById('pendingLoans');
+            
+            if (!loans || loans.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">✓</div>
+                        <p>Todas as solicitações foram processadas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const pending = loans.filter(l => l.status === 'PENDING').slice(0, 5);
+
+            if (pending.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">✓</div>
+                        <p>Nenhuma solicitação pendente</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = pending.map(loan => `
+                <div class="loan-item">
+                    <div class="loan-icon">📕</div>
+                    <div class="loan-info">
+                        <div class="loan-title">${loan.book.title}</div>
+                        <div class="loan-user">👤 ${loan.user.name}</div>
+                    </div>
+                    <div class="loan-actions">
+                        <button class="btn btn-success" onclick="approve(${loan.id})">
+                            ✓ Aprovar
+                        </button>
+                        <button class="btn btn-danger" onclick="reject(${loan.id})">
+                            ✕ Rejeitar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mostrar atividade
+        function showActivity(loans) {
+            const container = document.getElementById('activity');
+            
+            if (!loans || loans.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">📝</div>
+                        <p>Nenhuma atividade recente</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = loans.slice(0, 8).map(loan => `
+                <div class="activity-item">
+                    <div>${getActivityText(loan)}</div>
+                    <div class="activity-time">${formatTime(loan.createdAt)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Texto da atividade
+        function getActivityText(loan) {
+            const texts = {
+                'PENDING': `📝 ${loan.user.name} solicitou "${loan.book.title}"`,
+                'ACTIVE': `✓ Empréstimo aprovado para ${loan.user.name}`,
+                'RETURNED': `📚 ${loan.user.name} devolveu "${loan.book.title}"`,
+                'OVERDUE': `⚠️ "${loan.book.title}" está atrasado`,
+                'CANCELLED': `✕ Solicitação cancelada`
+            };
+            return texts[loan.status] || 'Atividade registrada';
+        }
+
+        // Formatar tempo
+        function formatTime(date) {
+            const diff = Math.floor((new Date() - new Date(date)) / 1000);
+            if (diff < 60) return 'Agora';
+            if (diff < 3600) return `${Math.floor(diff / 60)} min atrás`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
+            return `${Math.floor(diff / 86400)} dias atrás`;
+        }
+
+        // Aprovar empréstimo
+        async function approve(id) {
+            try {
+                const response = await fetch(`${API_URL}/loans/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'ACTIVE' })
+                });
+
+                if (response.ok) {
+                    alert('Empréstimo aprovado!');
+                    loadData();
+                }
+            } catch (error) {
+                alert('Erro ao aprovar');
+            }
+        }
+
+        // Rejeitar empréstimo
+        async function reject(id) {
+            if (!confirm('Rejeitar esta solicitação?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/loans/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'CANCELLED' })
+                });
+
+                if (response.ok) {
+                    alert('Solicitação rejeitada');
+                    loadData();
+                }
+            } catch (error) {
+                alert('Erro ao rejeitar');
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja sair?')) {
+                localStorage.clear();
+                window.location.href = '/login';
+            }
+        }
+
+        // Carregar dados ao iniciar
+        loadData();
+
+        // Atualizar a cada 30 segundos
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

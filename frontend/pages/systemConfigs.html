@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações - BiblioTech</title>
+    <style>
+
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-sidebar: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverted: #ffffff;
+
+            --border-light: #e5e7eb;
+            --shadow: rgba(0, 0, 0, 0.05);
+        }
+
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+
+            --bg-main: #020617;
+            --bg-card: #0f172a;
+            --bg-sidebar: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-inverted: #ffffff;
+
+            --border-light: #1e293b;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-sidebar);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 2rem;
+            max-width: 900px;
+        }
+
+        .header {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.3rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #f1f5f9;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid #6366f1;
+            color: #6366f1;
+        }
+
+        .info-box {
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div style="padding: 0 1.5rem 1.5rem; font-size: 1.5rem; font-weight: bold;">
+            📚 BiblioTech
+        </div>
+        <a href="" id="dashboard-link" style="text-decoration: none;">
+            <div style="padding: 1rem 1.5rem; cursor: pointer; color: var(--text-primary);">
+                📊 Dashboard
+            </div>
+        </a>
+        <div style="padding: 1rem 1.5rem; cursor: pointer; background: rgba(99,102,241,0.2); color: var(--dark);">
+            ⚙️ Configurações
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="header">
+            <h1>Configurações do Sistema</h1>
+            <p style="color: #64748b;">Gerencie os parâmetros da biblioteca</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- EMPRÉSTIMOS -->
+        <div class="section">
+            <h2 class="section-title">⏱️ Configurações de Empréstimo</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Prazo Padrão de Empréstimo (dias)</label>
+                <input type="number" class="form-input" id="loanDays" value="14">
+                <span class="form-help">Número de dias que um livro pode ficar emprestado</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Máximo de Renovações</label>
+                <input type="number" class="form-input" id="maxRenewals" value="2">
+                <span class="form-help">Quantas vezes um empréstimo pode ser renovado</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Multa por Dia de Atraso (R$)</label>
+                <input type="number" step="0.01" class="form-input" id="finePerDay" value="2.50">
+                <span class="form-help">Valor cobrado por dia de atraso</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Máximo de Empréstimos Simultâneos</label>
+                <input type="number" class="form-input" id="maxLoans" value="3">
+                <span class="form-help">Quantidade máxima de livros por usuário</span>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveLoanConfig()">
+                💾 Salvar Configurações
+            </button>
+        </div>
+
+        <!-- NOTIFICAÇÕES -->
+        <div class="section">
+            <h2 class="section-title">📧 Notificações por Email</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Servidor SMTP</label>
+                <input type="text" class="form-input" id="smtpHost" placeholder="smtp.gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Porta SMTP</label>
+                <input type="number" class="form-input" id="smtpPort" value="587">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email Remetente</label>
+                <input type="email" class="form-input" id="emailFrom" placeholder="biblioteca@exemplo.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Senha do Email</label>
+                <input type="password" class="form-input" id="emailPassword" placeholder="••••••••">
+                <span class="form-help">Senha de aplicativo (não a senha normal)</span>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveEmailConfig()">
+                💾 Salvar Configurações
+            </button>
+            <button class="btn btn-outline" onclick="testEmail()" style="margin-left: 1rem;">
+                📧 Enviar Email de Teste
+            </button>
+        </div>
+
+        <!-- SISTEMA -->
+        <div class="section">
+            <h2 class="section-title">🖥️ Informações do Sistema</h2>
+            
+            <div class="info-box">
+                <div class="info-item">
+                    <span class="info-label">Versão do Sistema</span>
+                    <span class="info-value">1.0.0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Banco de Dados</span>
+                    <span class="info-value" style="color: #10b981;">✓ Conectado</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Último Backup</span>
+                    <span class="info-value" id="lastBackup">Nunca</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total de Livros</span>
+                    <span class="info-value" id="totalBooks">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total de Usuários</span>
+                    <span class="info-value" id="totalUsers">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Empréstimos Ativos</span>
+                    <span class="info-value" id="activeLoans">0</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="createBackup()">
+                    💾 Criar Backup Agora
+                </button>
+                <button class="btn btn-outline" onclick="viewLogs()">
+                    📋 Ver Logs do Sistema
+                </button>
+            </div>
+        </div>
+
+        <!-- ZONA DE PERIGO -->
+        <div class="section" style="border: 2px solid #ef4444;">
+            <h2 class="section-title" style="color: #ef4444;">⚠️ Zona de Perigo</h2>
+            
+            <div class="alert alert-warning">
+                <strong>Atenção!</strong> As ações abaixo são irreversíveis e podem causar perda de dados.
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-danger" onclick="resetSystem()">
+                    🔄 Resetar Configurações
+                </button>
+                <button class="btn btn-danger" onclick="clearDatabase()">
+                    🗑️ Limpar Banco de Dados
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${type === 'success' ? '✓' : '⚠️'} ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+         async function loadUserData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    dashboardRedirect(data.user.role);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function dashboardRedirect(role){
+            const redirectDashboard = document.getElementById('dashboard-link');
+            if(role === "USER"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardUser');
+            }
+            else if(role === "ADMIN"){
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardAdmin');
+            }
+            else{
+                redirectDashboard.setAttribute('href', 'http://localhost:3000/dashboardBibliotecario');
+            }
+        }
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch(`${API_URL}/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.stats) {
+                    document.getElementById('totalBooks').textContent = data.stats.totalBooks || 0;
+                    document.getElementById('totalUsers').textContent = data.stats.totalUsers || 0;
+                    document.getElementById('activeLoans').textContent = data.stats.activeLoans || 0;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        function saveLoanConfig() {
+            const config = {
+                loanDays: document.getElementById('loanDays').value,
+                maxRenewals: document.getElementById('maxRenewals').value,
+                finePerDay: document.getElementById('finePerDay').value,
+                maxLoans: document.getElementById('maxLoans').value
+            };
+
+            // Implementar API call
+            showAlert('Configurações de empréstimo salvas com sucesso!');
+        }
+
+        function saveEmailConfig() {
+            const config = {
+                smtpHost: document.getElementById('smtpHost').value,
+                smtpPort: document.getElementById('smtpPort').value,
+                emailFrom: document.getElementById('emailFrom').value,
+                emailPassword: document.getElementById('emailPassword').value
+            };
+
+            // Implementar API call
+            showAlert('Configurações de email salvas com sucesso!');
+        }
+
+        function testEmail() {
+            showAlert('Email de teste enviado! Verifique sua caixa de entrada.', 'success');
+        }
+
+        function createBackup() {
+            if (!confirm('Criar backup do banco de dados?')) return;
+            
+            showAlert('Backup criado com sucesso!');
+            document.getElementById('lastBackup').textContent = new Date().toLocaleString('pt-BR');
+        }
+
+        function viewLogs() {
+            alert('Visualização de logs em desenvolvimento');
+        }
+
+        function resetSystem() {
+            if (!confirm('ATENÇÃO: Resetar todas as configurações para os valores padrão?')) return;
+            if (!confirm('Tem certeza? Esta ação não pode ser desfeita!')) return;
+            
+            document.getElementById('loanDays').value = '14';
+            document.getElementById('maxRenewals').value = '2';
+            document.getElementById('finePerDay').value = '2.50';
+            document.getElementById('maxLoans').value = '3';
+            
+            showAlert('Configurações resetadas!', 'warning');
+        }
+
+        function clearDatabase() {
+            if (!confirm('PERIGO: Limpar TODOS os dados do banco?')) return;
+            if (!confirm('Esta ação é IRREVERSÍVEL! Continuar?')) return;
+            
+            const confirmation = prompt('Digite "CONFIRMAR" para prosseguir:');
+            if (confirmation !== 'CONFIRMAR') {
+                alert('Operação cancelada');
+                return;
+            }
+            
+            alert('Funcionalidade desabilitada por segurança');
+        }
+
+        loadSystemInfo();
+        loadUserData();
+    </script>
+</body>
+</html>

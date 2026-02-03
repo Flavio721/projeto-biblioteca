@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BiblioTech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand */
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            /* Backgrounds */
+            --bg-page: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-muted: #e5e7eb;
+
+            /* Text */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-inverse: #ffffff;
+
+            /* Borders */
+            --border-color: #e2e8f0;
+
+            /* Effects */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+            }
+
+        [data-theme="dark"] {
+        /* Brand */
+        --primary: #818cf8;
+        --primary-hover: #6366f1;
+        --secondary: #f472b6;
+        --accent: #34d399;
+
+        /* Backgrounds */
+        --bg-page: #020617;
+        --bg-surface: #0f172a;
+        --bg-muted: #1e293b;
+
+        /* Text */
+        --text-primary: #e5e7eb;
+        --text-secondary: #9ca3af;
+        --text-inverse: #020617;
+
+        /* Borders */
+        --border-color: #1e293b;
+
+        /* Effects */
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.6);
+        --shadow-lg: 0 8px 16px rgba(0,0,0,0.8);
+        }
+
+
+        body {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--bg-page);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 260px; 
+            height: 100vh; 
+            padding: 2rem 0;
+            overflow-y: auto; 
+            z-index: 100;
+            scrollbar-width: none;
+        }
+
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-badge {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .sidebar-menu {
+            padding: 1.5rem 0;
+        }
+
+        .menu-section {
+            margin-bottom: 2rem;
+        }
+
+        .menu-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            color: var(--text-secondary);
+            padding: 0.875rem 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: var(--bg-muted);
+            color: var(--text-primary);
+        }
+
+        .menu-item.active {
+            background: color-mix(in srgb, var(--primary) 20%, transparent);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+
+        .menu-icon {
+            font-size: 1.3rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .page-header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            color:  var(--text-inverse);
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.primary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.accent {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+        }
+
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-icon.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .stat-change.positive {
+            color: var(--accent);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* CONTENT GRID */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--white); 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .card-action {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .card-action:hover {
+            text-decoration: underline;
+        }
+
+        /* TABLE */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+       .table thead {
+            background: var(--bg-muted);
+        }
+
+        .table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-muted);
+        }
+
+
+        .table th {
+            padding: 0.875rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: color-mix(in srgb, var(--accent) 20%, transparent);
+            color: var(--accent);
+        }
+
+        .badge-warning {
+            background: color-mix(in srgb, var(--warning) 20%, transparent);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: color-mix(in srgb, var(--danger) 20%, transparent);
+            color: var(--danger);
+        }
+
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* ACTIVITY LIST */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* CHART PLACEHOLDER */
+        .chart-placeholder {
+            height: 300px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.5rem;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 1.25rem;
+            border: 2px solid var(--light-gray);
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+        }
+
+        .action-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* LOADING */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-gray);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">📚 BiblioTech</div>
+            <span class="admin-badge">Administrador</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <div class="menu-section">
+                <div class="menu-section-title">Principal</div>
+                <a class="menu-item active" onclick="showSection('dashboard')">
+                    <span class="menu-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="menu-item" onclick="location.href='/gerenciar/livros'">
+                    <span class="menu-icon">📚</span>
+                    <span>Livros</span>
+                </a>
+                <a class="menu-item" onclick="location.href='/gerenciar/emprestimos'">
+                    <span class="menu-icon">📋</span>
+                    <span>Empréstimos</span>
+                    <span id="pendingLoans"></span>
+                </a>
+                <a class="menu-item" onclick="location.href='/gerenciar/usuarios'">
+                    <span class="menu-icon">👥</span>
+                    <span>Usuários</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-section-title">Gestão</div>
+                <a class="menu-item" onclick="showSection('overdue')">
+                    <span class="menu-icon">⚠️</span>
+                    <span>Atrasados</span>
+                    <span id="overdueCount"></span>
+                </a>
+                <a class="menu-item" onclick="showSection('reports')">
+                    <span class="menu-icon">📈</span>
+                    <span>Relatórios</span>
+                </a>
+                <a class="menu-item" href="/systemConfig">
+                    <span class="menu-icon">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-section-title">Conta</div>
+                <a class="menu-item" href="/perfil">
+                    <span class="menu-icon">👤</span>
+                    <span>Meu Perfil</span>
+                </a>
+                <a class="menu-item" onclick="logout()">
+                    <span class="menu-icon">🚪</span>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="header-left">
+                <h1>Dashboard Administrativo</h1>
+                <p class="header-subtitle">Visão geral do sistema - Atualizado em tempo real</p>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div>
+                        <div style="font-weight: 600;" id="username"></div>
+                        <div style="font-size: 0.85rem; color: var(--gray);" id="email"></div>
+                    </div>
+                    <div class="user-avatar" id="avatar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div id="alertsContainer"></div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+            <a href="/gerenciar/livros" style="text-decoration: none;">
+                <div class="stat-card">
+                    <div class="stat-icon primary">📚</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total de Livros</div>
+                        <div class="stat-value" id="totalBooks"></div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/gerenciar/usuarios" style="text-decoration: none;">
+                <div class="stat-card">
+                    <div class="stat-icon accent">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Usuários Ativos</div>
+                        <div class="stat-value" id="activeUsers"></div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/gerenciar/emprestimos" style="text-decoration: none;">
+                <div class="stat-card">
+                    <div class="stat-icon warning">📋</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Empréstimos Ativos</div>
+                        <div class="stat-value" id="activeLoans">0</div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/gerenciar/emprestimos" style="text-decoration: none;">
+                <div class="stat-card">
+                    <div class="stat-icon danger">⚠️</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Empréstimos Atrasados</div>
+                        <div class="stat-value" id="overdueLoans">0</div>
+                        <div class="stat-change negative">
+                
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+            <!-- LEFT COLUMN -->
+            <div>
+                <!-- RECENT LOANS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Empréstimos Recentes</h2>
+                        <a class="card-action" onclick="showSection('loans')">Ver todos →</a>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="recentLoansTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Livro</th>
+                                    <th>Data</th>
+                                    <th>Devolução</th>
+                                    <th>Status</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="loading">
+                                            <div class="spinner"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- POPULAR BOOKS -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h2 class="card-title">Livros Mais Populares</h2>
+                        <a class="card-action" onclick="showSection('reports')">Ver relatório →</a>
+                    </div>
+                    <div class="chart-placeholder" id="popularBooksChart">
+                        📊 Gráfico de Livros Mais Emprestados
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div>
+                <!-- QUICK ACTIONS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Ações Rápidas</h2>
+                    </div>
+                    <div class="quick-actions">
+                        <div class="action-btn" onclick="location.href='/novo-livro'">
+                            <div class="action-icon">➕</div>
+                            <div class="action-label">Novo Livro</div>
+                        </div>
+                        <div class="action-btn" onclick="showSection('users')">
+                            <div class="action-icon">👤</div>
+                            <div class="action-label">Novo Usuário</div>
+                        </div>
+                        <div class="action-btn" onclick="showSection('loans')">
+                            <div class="action-icon">✓</div>
+                            <div class="action-label">Aprovar Empréstimo</div>
+                        </div>
+                        <div class="action-btn" onclick="location.href='/relatorios'">
+                            <div class="action-icon">📊</div>
+                            <div class="action-label">Gerar Relatório</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT ACTIVITY -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h2 class="card-title">Atividade Recente</h2>
+                    </div>
+                    <div class="activity-list" id="activityList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATUS -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h2 class="card-title">Status do Sistema</h2>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Servidor</span>
+                            <span class="badge badge-success">Online</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Banco de Dados</span>
+                            <span class="badge badge-success">Conectado</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Backup</span>
+                            <span class="badge badge-info">Há 2 horas</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Uptime</span>
+                            <span style="color: var(--gray);">99.9%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        let allLoans = []
+
+        // Verificar autenticação e permissão
+        if (!token || user.role !== 'ADMIN') {
+            alert('Acesso negado. Apenas administradores.');
+            window.location.href = '/dashboard';
+        }
+
+        // Carregar dados ao iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            showDatas();
+            checkAlerts();
+        });
+        function showDatas(){
+            viewAllBooks();
+            viewAllUsers();
+            viewAllLoansActives();
+            viewAllLoansDelayed();
+            adminData();
+            loadLoans();
+        }
+        async function loadLoans() {
+            try {
+                const response = await fetch(`${API_URL}/loans`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    allLoans = data.loans;
+                    displayRecentLoans(allLoans);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dashboard:', error);
+            }
+        }
+        function displayRecentLoans(loans) {
+            const tbody = document.querySelector('#recentLoansTable tbody');
+            
+            if (!loans || loans.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon">📋</div>
+                                <p>Nenhum empréstimo recente</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = loans.slice(0, 5).map(loan => `
+                <tr>
+                    <td>${loan.user.name}</td>
+                    <td>${loan.book.title}</td>
+                    <td>${formatDate(loan.loanDate)}</td>
+                    <td>${formatDate(loan.dueDate)}</td>
+                    <td>${getStatusBadge(loan.status)}</td>
+                    <td>
+                        <a class="card-action" onclick="viewLoan(${loan.id})">Ver</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function updateStats(stats) {
+            document.getElementById('totalBooks').textContent = stats.totalBooks || 0;
+            document.getElementById('activeUsers').textContent = stats.totalUsers || 0;
+            document.getElementById('activeLoans').textContent = stats.activeLoans || 0;
+            document.getElementById('overdueLoans').textContent = stats.overdueLoans || 0;
+            document.getElementById('pendingLoans').textContent = stats.activeLoans || 0;
+            document.getElementById('pendingLoans').classList.add('menu-badge');
+            document.getElementById('overdueCount').textContent = stats.overdueLoans || 0;
+            document.getElementById('overdueCount').classList.add('menu-badge')
+        }
+
+
+        function displayMostBorrowed(books) {
+            // Aqui você implementaria um gráfico real
+            // Por enquanto, apenas placeholder
+            if (books && books.length > 0) {
+                const chart = document.getElementById('popularBooksChart');
+                chart.innerHTML = `
+                    <div style="text-align: left; padding: 1rem;">
+                        ${books.map((book, index) => `
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>${index + 1}. ${book.title}</span>
+                                    <span style="font-weight: 600;">${book.loanCount} empréstimos</span>
+                                </div>
+                                <div style="height: 8px; background: var(--light-gray); border-radius: 4px;">
+                                    <div style="height: 100%; width: ${(book.loanCount / books[0].loanCount) * 100}%; background: var(--primary); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function displayActivity(loans) {
+            const container = document.getElementById('activityList');
+            
+            if (!loans || loans.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhuma atividade recente</p>';
+                return;
+            }
+
+            container.innerHTML = loans.slice(0, 5).map(loan => `
+                <div class="activity-item">
+                    <div class="activity-icon">📚</div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            ${loan.user.name} solicitou "${loan.book.title}"
+                        </div>
+                        <div class="activity-time">${getTimeAgo(loan.createdAt)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function checkAlerts() {
+            const alertsContainer = document.getElementById('alertsContainer');
+            
+            // Buscar alertas do sistema
+            const res = await fetch(`${API_URL}/loans/overdue`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.loans && data.loans.length > 0) {
+                    alertsContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Atenção: Empréstimos Atrasados!</div>
+                                <div>Existem ${data.loans.length} empréstimo(s) atrasado(s) que requerem ação imediata.</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'PENDING': '<span class="badge badge-warning">Pendente</span>',
+                'ACTIVE': '<span class="badge badge-success">Ativo</span>',
+                'OVERDUE': '<span class="badge badge-danger">Atrasado</span>',
+                'RETURNED': '<span class="badge badge-info">Devolvido</span>',
+                'CANCELLED': '<span class="badge badge-danger">Cancelado</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Agora mesmo';
+            if (diffInSeconds < 3600) return `Há ${Math.floor(diffInSeconds / 60)} minutos`;
+            if (diffInSeconds < 86400) return `Há ${Math.floor(diffInSeconds / 3600)} horas`;
+            return `Há ${Math.floor(diffInSeconds / 86400)} dias`;
+        }
+
+        // Navigation
+        function showSection(section) {
+            // Remover active de todos os itens
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Adicionar active no item clicado
+            event.target.closest('.menu-item').classList.add('active');
+            
+            // Aqui você implementaria a navegação entre seções
+            alert(`Navegando para: ${section}`);
+            
+            // Exemplo de redirecionamento
+            const routes = {
+                'dashboard': '/admin',
+                'books': '/admin/livros',
+                'loans': '/admin/emprestimos',
+                'users': '/admin/usuarios',
+                'overdue': '/admin/atrasados',
+                'reports': '/admin/relatorios',
+                'settings': '/admin/configuracoes'
+            };
+            
+            if (routes[section]) {
+                // window.location.href = routes[section];
+                console.log('Redirect to:', routes[section]);
+            }
+        }
+
+        function viewLoan(loanId) {
+            alert(`Ver detalhes do empréstimo ${loanId}`);
+            // window.location.href = `/admin/emprestimos/${loanId}`;
+        }
+        async function viewAllBooks(){
+            const res = await fetch(`${API_URL}/books/length`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                    }
+            })
+
+            if(!res.ok){
+                document.getElementById('totalBooks').innerText = "Erro"
+                document.getElementById('totalBooks').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+
+            document.getElementById('totalBooks').innerText = data.length
+            localStorage.setItem("totalBooks", data.length);
+        }
+        async function viewAllUsers(){
+            const res = await fetch(`${API_URL}/users/length`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('activeUsers').innerText = 'Erro!';
+                document.getElementById('activeUsers').style.color = 'red';
+                return;
+            }
+
+            const data = await res.json();
+
+            document.getElementById('activeUsers').innerText = data.length;
+            localStorage.setItem("totalUsers", data.length);
+        }
+        async function viewAllLoansActives(){
+            const res = await fetch(`${API_URL}/loans/lengthActive`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('activeLoans').innerText = "Erro!";
+                document.getElementById('activeLoans').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+
+            document.getElementById('activeLoans').innerText = data.length;
+            localStorage.setItem("totalLoansActive", data.length);
+        }
+        async function viewAllLoansDelayed(){
+            const res = await fetch(`${API_URL}/loans/lengthDelayed`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                document.getElementById('overdueLoans').innerText = "Erro!";
+                document.getElementById('overdueLoans').style.color = 'red';
+                return;
+            }
+            const data = await res.json();
+            document.getElementById('overdueLoans').innerText = data.length;
+
+            if(data.length > 3){
+                document.getElementById('stat-change').innerText = "Requer atenção";
+            }
+            localStorage.setItem('totalLoansOverdue', data.length);
+        }
+        async function adminData(){
+            const res = await fetch(`${API_URL}/auth/me`, {
+                headers: { 
+                        'Authorization': `Bearer ${token}`
+                }
+            });
+            if(!res.ok){
+                throw new Error("Não autorizado");
+            }
+            const data = await res.json();
+            const name = data?.user?.name || '';
+
+            document.getElementById('username').innerText = data.user.name;
+            document.getElementById('email').innerText = data.user.email; 
+            document.getElementById('avatar').innerText = name.trim().charAt(0).toUpperCase() || '?';  
+        }
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+
+        // Atualizar dados a cada 30 segundos
+        setInterval(() => {
+            loadDashboardData();
+        }, 30000);
+    </script>
+</body>
+</html>

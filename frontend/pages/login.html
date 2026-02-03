@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Login</title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #f472b6;
+            --accent: #34d399;
+
+            --dark: #e5e7eb;        /* texto principal */
+            --gray: #9ca3af;        /* texto secundário */
+            --light-gray: #020617;  /* background principal */
+            --white: #0f172a;       /* cards / containers */
+        }
+        body{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }      
+        main{
+            display: flex;
+            height: 100vh;
+        }
+        .side-painel{
+            width: 50%;
+            height: 700px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+            h1{
+                font-size: 5em;
+            }
+            h2{
+                font-size: 3em;
+                font-weight: 700;
+            }
+            p{
+                font-size: 1.2em;
+            }
+            .side-painel-list{
+                list-style-type: none;
+
+                li{
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                li::before{
+                    content: '✓';
+                    display: inline-block;
+                    width: 24px;
+                    height: 24px;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    text-align: center;
+                    line-height: 24px;
+                    font-weight: bold;
+                }
+            }
+        }
+        .form{
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 10px;
+            height: 90%;
+            width: 50%;
+            margin-top: 20px;
+            margin-right: 20px;
+            padding: 20px;
+            .hero-title{
+                font-weight: 700;
+            }
+            .hero-text{
+                font-size: 1em;
+                color: var(--gray);
+            }
+        }
+        form{
+            height: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+
+            .form-btn{
+                width: 40%;
+                margin: auto;
+                border: none;
+                border-radius: 10px;
+                padding: 10px 15px;
+                background-color: var(--primary-dark);
+                color: var(--white);
+                font-weight: 600;
+                font-size: 1.2em;
+            }
+        }
+        .have-acount{
+            text-align: center;
+            margin-top: -10px;
+            .login-link{
+                color: var(--primary-dark);
+                text-decoration: none;
+                font-weight: 600;
+            }
+        }
+        #status{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <article class="side-painel">
+            <h1>📚</h1>
+            <h2>BiblioTech</h2>
+            <p>Sua biblioteca digital, sempre ao seu alcance</p>
+            <ul class="side-painel-list">
+                <li>Acesso a mais de 5.000 livros</li>
+                <li>Empréstimos online gratuitos</li>
+                <li>Renovação automática disponível</li>
+                <li>Avalie e comente seus livros favoritos</li>
+                <li>Recomendações personalizadas</li>
+            </ul>
+        </article>
+        <section class="form">
+            <h1 class="hero-title">Bem-vindo de Volta!</h1>
+            <p class="hero-text">Entre com sua conta para continuar</p>
+            <form method="post" id="loginForm">
+                <div class="form-field">
+                    <label for="iemail">Email</label>
+                    <input type="email" name="email" id="iemail" class="form-control" required placeholder="seu@email.com">
+                </div>
+                <div class="form-field">
+                    <label for="isenha">Senha</label>
+                    <input type="password" name="Senha" id="isenha" class="form-control" required placeholder="••••••••" min="8">
+                </div>
+                <div class="form-field">
+                    <label for="iconf">Confirmar senha</label>
+                    <input type="password" name="Confirmar" id="iconf" class="form-control" required placeholder="••••••••" min="8">
+                </div>
+                <button type="submit" class="form-btn">Entrar</button>
+            </form>
+            <p class="have-acount">Não tem uma conta? <a href="/cadastro" class="login-link">Criar</a></p>
+            <p id="status"></p>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function() {
+            event.preventDefault();
+
+            const email = document.getElementById('iemail').value;
+            const senha = document.getElementById('isenha').value;
+            const confirmacao = document.getElementById('iconf').value;
+            const status = document.getElementById('status');
+
+
+            if(senha !== confirmacao){
+                status.innerText = "Senhas diferentes!"
+                status.style.color = 'red';
+            }
+
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password: senha
+
+                })
+            })
+            const data = await res.json();
+
+            if(res.ok){
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                status.innerText = "Cadastro efetuado!";
+                status.style.color = 'green';
+
+                if(data.user.role === 'ADMIN'){
+                    setTimeout(() => {
+                    window.location.href = '/dashboardAdmin';
+                }, 2000)
+                }
+                else if(data.user.role === 'LIBRARIAN'){
+                    setTimeout(() => {
+                    window.location.href = '/dashboardBibliotecario';
+                }, 2000)
+                }
+                else{
+                    setTimeout(() => {
+                        window.location.href = '/dashboardUser';
+                    }, 2000)
+                }
+            }
+            else{
+                console.log('Erro: ', data.error)
+            }
+        })
+    </script>
+</body>
+</html>
