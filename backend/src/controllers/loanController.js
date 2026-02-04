@@ -79,6 +79,54 @@ export async function create(req, res){
         res.status(500).json({error: 'Erro ao criar emprést1imo'})
     }
 }
+export async function createReserve(req, res) {
+    try {
+        const userId = parseInt(req.user.id);
+        const { bookId } = req.body;
+
+        // 1️⃣ Verifica se o livro existe
+        const book = await prisma.book.findUnique({
+            where: { id: bookId }
+        });
+
+        if (!book) {
+            return res.status(404).json({ error: 'Livro não encontrado' });
+        }
+
+        // 2️⃣ Descobre a última posição DAQUELE livro
+        const lastPosition = await prisma.reservation.findFirst({
+            where: {
+                bookId,
+                status: 'ACTIVE'
+            },
+            orderBy: {
+                position: 'desc'
+            }
+        });
+
+        const nextPosition = lastPosition ? lastPosition.position + 1 : 1;
+
+        // 3️⃣ Cria a reserva
+        const newReserve = await prisma.reservation.create({
+            data: {
+                userId,
+                bookId,
+                position: nextPosition,
+                status: 'ACTIVE',
+            }
+        });
+
+        return res.status(201).json({
+            message: 'Reserva criada com sucesso',
+            reserve: newReserve
+        });
+
+    } catch (error) {
+        console.error('Erro ao criar reserva:', error);
+        return res.status(500).json({ error: 'Erro ao criar reserva' });
+    }
+}
+
 export async function updateStatus(req, res) {
     try {
         const { id } = req.params;

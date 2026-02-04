@@ -65,7 +65,9 @@ router.get('/novo-livro', (req, res) => {
 })
 router.get('/wishlist', (req, res) => {
     res.sendFile(path.join(__dirname, '../../../frontend/pages/wishlist.html'));
-
+})
+router.get('/reservas', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../frontend/pages/reserva.html'));
 })
 router.get('/livro/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '../../../frontend/pages/details.html'));

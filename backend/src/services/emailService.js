@@ -1,4 +1,7 @@
 import { transporter } from '../config/email.js';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 /**
  * Envia email genérico
@@ -198,4 +201,120 @@ export async function sendOverdueNotificationEmail(user, book, loan, daysOverdue
         html,
         text: `ATENÇÃO: O livro "${book.title}" está atrasado há ${daysOverdue} dia(s). Multa: R$ ${fine.toFixed(2)}`
     });
+}
+
+/**
+ * Verifica empréstimos atrasados e envia emails
+ */
+export async function verificarEmprestimosAtrasados() {
+    try {
+        console.log('🔍 Verificando empréstimos atrasados...');
+        
+        const hoje = new Date();
+        
+        // Buscar apenas empréstimos com status OVERDUE ou que já passaram da data
+        const overdueLoans = await prisma.loan.findMany({
+            where: {
+                OR: [
+                    { status: "OVERDUE" },
+                    {
+                        AND: [
+                            { status: "ACTIVE" },
+                            { dueDate: { lt: hoje } }, // Vencimento passou
+                            { returnDate: null }
+                        ]
+                    }
+                ]
+            },
+            include: {
+                user: true,
+                book: true
+            }
+        });
+
+        console.log(`📊 Encontrados ${overdueLoans.length} empréstimos atrasados`);
+
+        // Processar cada empréstimo atrasado
+        for (const loan of overdueLoans) {
+            const diasAtrasados = Math.floor((hoje - new Date(loan.dueDate)) / (1000 * 60 * 60 * 24));
+            
+            console.log(`⚠️  ${loan.user.name} - ${loan.book.title}: ${diasAtrasados} dias`);
+            
+            // Atualizar status se necessário
+            if (loan.status !== 'OVERDUE') {
+                await prisma.loan.update({
+                    where: { id: loan.id },
+                    data: { 
+                        status: 'OVERDUE',
+                        fineAmount: diasAtrasados * parseFloat(process.env.FINE_PER_DAY || 2.5)
+                    }
+                });
+            }
+            
+            // Enviar email
+            await sendOverdueNotificationEmail(loan.user, loan.book, loan, diasAtrasados);
+        }
+
+        console.log('✅ Empréstimos atrasados processados\n');
+        
+    } catch (error) {
+        console.error('❌ Erro ao verificar empréstimos atrasados:', error);
+    }
+}
+
+/**
+ * Envia lembretes para empréstimos próximos do vencimento
+ */
+export async function enviarLembretesVencimento(diasAntes = 2) {
+    try {
+        console.log(`🔍 Verificando empréstimos próximos do vencimento (${diasAntes} dias)...`);
+        
+        const hoje = new Date();
+        const dataLimite = new Date();
+        dataLimite.setDate(dataLimite.getDate() + diasAntes);
+        
+        // Buscar empréstimos que vencem nos próximos X dias
+        const upcomingLoans = await prisma.loan.findMany({
+            where: {
+                status: "ACTIVE",
+                dueDate: {
+                    gte: hoje,      // Maior ou igual a hoje
+                    lte: dataLimite // Menor ou igual a data limite
+                },
+                returnDate: null
+            },
+            include: {
+                user: true,
+                book: true
+            }
+        });
+
+        console.log(`📊 Encontrados ${upcomingLoans.length} empréstimos próximos do vencimento`);
+
+        // Enviar lembrete para cada um
+        for (const loan of upcomingLoans) {
+            const diasRestantes = Math.ceil((new Date(loan.dueDate) - hoje) / (1000 * 60 * 60 * 24));
+            
+            console.log(`📧 Lembrete para ${loan.user.name} - ${diasRestantes} dias restantes`);
+            
+            await sendReturnReminderEmail(loan.user, loan.book, loan, diasRestantes);
+        }
+
+        console.log('✅ Lembretes enviados\n');
+        
+    } catch (error) {
+        console.error('❌ Erro ao enviar lembretes:', error);
+    }
+}
+
+/**
+ * Executa todas as verificações
+ */
+export async function executarVerificacoes() {
+    console.log('\n⏰ ===== VERIFICAÇÃO AUTOMÁTICA DE EMPRÉSTIMOS =====\n');
+    
+    await verificarEmprestimosAtrasados();
+    await enviarLembretesVencimento(2); // 2 dias antes
+    
+    console.log('⏰ ===== VERIFICAÇÃO CONCLUÍDA =====\n');
 }

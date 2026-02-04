@@ -58,4 +58,4 @@ export const reviewValidation = {
         body('comment').optional().trim(),
         validate
     ]
-}   
+}

@@ -1,5 +1,5 @@
 import express from 'express';
-import { create, getMyLoans, renew, updateStatus, getLoansByDate, getAllFine } from '../controllers/loanController.js';
+import { create, getMyLoans, renew, updateStatus, getLoansByDate, getAllFine, createReserve } from '../controllers/loanController.js';
 import { loanValidation } from '../middlewares/validator.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isLibrarian } from '../middlewares/roles.js';
@@ -34,6 +34,30 @@ router.get('/my-loans/pending', authMiddleware, async (req, res) => {
         loans: loansPending
     });
 })
+router.get('/my-reserves', authMiddleware, async (req, res) => {
+    try{
+        const userId = req.user.id;
+
+        const reserves = await prisma.reservation.findMany({
+            where: {
+                userId: userId
+            },
+            include: {
+                book: true
+            }
+        });
+
+        return res.json({
+            reserves: reserves
+        })
+    }catch(error){
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro na busca das reservas" });
+    }
+})
+
+router.post('/reserve', authMiddleware, createReserve);
+
 router.post('/:id/renew', authMiddleware, renew);
 
 // Rotas do bibliotecário

@@ -1016,10 +1016,8 @@
             // Borrow button
             const btnBorrow = document.getElementById('btnBorrow');
             if (!available) {
-                btnBorrow.disabled = true;
-                btnBorrow.textContent = '❌ Indisponível';
-                btnBorrow.style.opacity = '0.5';
-                btnBorrow.style.cursor = 'not-allowed';
+                btnBorrow.textContent = '📚 Reservar livro';
+                btnBorrow.onclick = () => reserveBook(book.id);
             } else {
                 btnBorrow.onclick = () => borrowBook(book.id);
             }
@@ -1162,7 +1160,6 @@
                 `;
             }
         }
-
         // Emprestar livro
         async function borrowBook(bookId) {
             if (!token) {
@@ -1186,12 +1183,32 @@
                 if (response.ok) {
                     alert('Solicitação enviada com sucesso!');
                     loadBook();
-                    registerActivity("LOAN_CREATED", `Empréstimo do livro ${bookName}`, "LOAN", data.loan.id, bookName, data.loan.dueDate);
+                    registerActivity("LOAN_CREATED", `Empréstimo do livro '${bookName}'`, "LOAN", data.loan.id, bookName, data.loan.dueDate);
                 } else {
                     alert(data.error || 'Erro ao solicitar empréstimo');
                 }
             } catch (error) {
                 alert('Erro ao conectar com servidor: ', error);
+            }
+        }
+        async function reserveBook(bookId){
+            try{
+                const res = await fetch(`${API_URL}/loans/reserve`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+                const data = await res.json()
+                if(!res.ok){
+                    console.error("Erro na reserva: ", data.error);
+                    return;
+                }
+                registerActivity("RESERVE_CREATED", `Reservou o livro '${bookName}'`, "BOOK", data.reserve.id, bookName, data.reserve.reservedAt);
+            }catch(error) {
+                console.error("Erro na reserva: ", error);
             }
         }
         async function addWishList(){
@@ -1210,7 +1227,7 @@
                     return;
                 }
                 console.log("Item adicionado na lista de desejos");
-                registerActivity("WISHLIST_ADDED", `Livro ${bookName} adicionado na lista de desejos`, "BOOK", data.item.id, bookName, data.item.createdAt);
+                registerActivity("WISHLIST_ADDED", `Livro '${bookName}' adicionado na lista de desejos`, "BOOK", data.item.id, bookName, data.item.createdAt);
             }catch(error){
                 console.error("Erro ao adicionar: ", error);
             }
