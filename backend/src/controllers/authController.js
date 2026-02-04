@@ -34,6 +34,12 @@ export async function register(req, res){
             }
         });
 
+        const wishList = await prisma.wishlist.create({
+            data: {
+                userId: user.id
+            }
+        });
+
         const token = generateToken({
             id: user.id,
             email: user.email,

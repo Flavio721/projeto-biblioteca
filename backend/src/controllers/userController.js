@@ -76,8 +76,14 @@ export async function viewAllFavorites(req, res){
 }
 export async function desfavorite(req, res){
     try{
-        const bookId = Number(req.query.bookId);
+        let bookId = undefined
         const userId = Number(req.user.id);
+
+        bookId = Number(req.query.bookId);
+
+        if(!bookId){
+            bookId = req.body;
+        }
 
         if (!Number.isInteger(userId) || !Number.isInteger(bookId)) {
             return res.status(400).json({ error: 'ID inválido' });
@@ -251,7 +257,36 @@ export async function popularUsers(req, res){
         return res.status(500).json({ error: "Erro na busca"} );
     }
 }
+        export async function getWishList(req, res){
+            try{
+                const userId = req.user.id;
 
+                const userWishList = await prisma.wishlist.findFirst({
+                    where: {
+                        userId: userId
+                    }
+                });
+
+                if(!userWishList){
+                    return res.status(404).json({ error: "Lista de desejos não encontrada" });
+                }
+
+                const userWishListItems = await prisma.wishlistItem.findMany({
+                    where: {
+                        wishlistId: userWishList.id
+                    }
+                });
+
+                return res.status(201).json({
+                    message: "Lista de desejos encontrada",
+                    wishlist: userWishList,
+                    items: userWishListItems
+                });
+            }catch(error){
+                console.error("Erro: ", error);
+                return res.status(500).json({ error: "Erro na busca da lista de desejos" });
+            }
+        }
 export async function addWishList(req, res){
     try{
         const { bookId } = req.body;

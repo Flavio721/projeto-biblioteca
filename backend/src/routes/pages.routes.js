@@ -63,7 +63,11 @@ router.get('/relatorios', (req, res) => {
 router.get('/novo-livro', (req, res) => {
     res.sendFile(path.join(__dirname, '../../../frontend/pages/newBook.html'));
 })
+router.get('/wishlist', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../frontend/pages/wishlist.html'));
+
+})
 router.get('/livro/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '../../../frontend/pages/details.html'));
-})
+});
 export default router

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Wishlist - BiblioTech</title>
+    <style>
+        /* ===============================
+   RESET
+================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===============================
+   DESIGN TOKENS — LIGHT
+================================ */
+:root {
+    /* Brand */
+    --primary: #6366f1;
+    --danger: #ef4444;
+
+    /* Backgrounds */
+    --bg-page: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-muted: #e5e7eb;
+
+    /* Text */
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+
+    /* UI */
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 25px rgba(0,0,0,0.08);
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+}
+
+/* ===============================
+   DESIGN TOKENS — DARK
+================================ */
+[data-theme="dark"] {
+    --bg-page: #020617;
+    --bg-surface: #0f172a;
+    --bg-muted: #1e293b;
+
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-inverse: #020617;
+
+    --border-color: #1e293b;
+    --shadow-sm: 0 2px 12px rgba(0,0,0,0.35);
+    --shadow-md: 0 16px 40px rgba(0,0,0,0.55);
+}
+
+/* ===============================
+   BASE
+================================ */
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+}
+
+/* ===============================
+   LAYOUT
+================================ */
+.container {
+    max-width: 1200px;
+    margin: 2.5rem auto;
+    padding: 0 2rem;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    color: var(--text-muted);
+}
+
+/* ===============================
+   GRID
+================================ */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+/* ===============================
+   CARD
+================================ */
+.book-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ===============================
+   COVER
+================================ */
+.book-cover {
+    width: 100%;
+    height: 280px;
+    background: linear-gradient(135deg, var(--primary), #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--text-inverse);
+    position: relative;
+}
+
+/* ===============================
+   REMOVE BUTTON
+================================ */
+.remove-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-surface);
+    color: var(--danger);
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.remove-btn:hover {
+    transform: scale(1.1);
+    background: color-mix(in srgb, var(--danger) 10%, var(--bg-surface));
+}
+
+/* ===============================
+   INFO
+================================ */
+.book-info {
+    padding: 1rem;
+}
+
+.book-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.book-author {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❤️ Lista de desejos</h1>
+            <p style="color: #64748b;">Livros que você guardou na lista de desejos</p>
+        </div>
+
+        <div class="books-grid" id="wishListGrid">
+            <div style="text-align: center; padding: 3rem; grid-column: 1/-1;">
+                Carregando lista de desejos...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+
+        document.documentElement.setAttribute('data-theme', theme);
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('token');
+        let bookCover = undefined
+
+        async function loadWishList() {
+            const res = await fetch(`${API_URL}/users/wishlist`, {
+                headers: { 'Authorization': `Bearer ${token}`}
+            });
+            if(!res.ok){
+                console.log("Erro: ", res.error);
+            }
+            const data = await res.json();
+            const bookIds = data.items.map(item => item.bookId);
+            const books = await Promise.all(
+            bookIds.map(async (bookId) => {
+                const response = await fetch(`${API_URL}/books/${bookId}`, {
+                    headers: { 'Authorization': `Bearer ${token}`}
+                });
+                if(!response.ok){
+                    console.error("Erro ao buscar livros: ", response.error);
+                }
+                return await response.json();
+            })
+        )
+
+            // Simulação - implementar endpoint real
+            const items = books.filter(b => b !== null);
+
+            
+            const container = document.getElementById('wishListGrid');
+            
+            if (bookIds.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; grid-column: 1/-1;">
+                        <div style="font-size: 4rem;">❤️</div>
+                        <p>Você ainda não tem itens na lista de desejos</p>
+                        <button onclick="window.location.href='/catalogo'" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Explorar Catálogo
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = items.map(book => `
+            <div class="book-card" onclick="viewBook(${book.id})">
+                <div 
+                    class="book-cover"
+                    ${
+                        book.coverImage && book.coverImage.trim() !== ""
+                        ? `style="background-image: url('${book.coverImage}'); background-size: 100% 100%"`
+                        : ""
+                    }
+                >
+                    ${
+                        !book.coverImage || book.coverImage.trim() === ""
+                        ? "📕"
+                        : ""
+                    }
+                    <button class="remove-btn" onclick="removeFavorite(event, ${book.id})">❌</button>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">${book.author}</div>
+                </div>
+            </div>
+        `).join('');
+
+
+        }
+
+        
+        async function removeFavorite(event, id) {
+            event.stopPropagation();
+            if (confirm('Remover da lista de desejos?')) {
+                const res = await fetch(`${API_URL}/books/desfavorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bookId: id
+                    })
+                })
+                const data = await res.json();
+                if(!res.ok){
+                    console.error("Erro: ", data.error);
+                    return;
+                }
+                loadWishList();
+            }
+        }
+
+        function viewBook(id) {
+            window.location.href = `/api/books/${id}`;
+        }
+
+        loadWishList();
+    </script>
+</body>
+</html>

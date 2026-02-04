@@ -79,42 +79,106 @@ export async function create(req, res){
         res.status(500).json({error: 'Erro ao criar emprést1imo'})
     }
 }
-export async function updateStatus(req, res){
-    try{
+export async function updateStatus(req, res) {
+    try {
         const { id } = req.params;
         const { status, notes } = req.body;
 
+        const loanId = parseInt(id);
+
         const loan = await prisma.loan.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: loanId },
             include: { book: true }
         });
-        if(!loan){
-            return res.status(404).json({error: 'Empréstimo não encontrado'});
+
+        if (!loan) {
+            return res.status(404).json({ error: 'Empréstimo não encontrado' });
         }
 
         const updateData = { status };
-        if(notes) updateData.notes = notes;
+        if (notes) updateData.notes = notes;
 
-        if(status === 'RETURNED'){
+        // ⚠️ Só executa a lógica pesada se estiver devolvendo
+        if (status === 'RETURNED') {
             updateData.returnDate = new Date();
 
+            // --- cálculo de multa ---
             const config = await prisma.systemConfig.findUnique({
-                where: { key: 'FINE_PER_DAY'}
+                where: { key: 'FINE_PER_DAY' }
             });
-            const finePerDay = config ? parseFloat(config.value) : 2.50;
-            updateData.fineAmount = calculateFine(loan.dueDate, new Date(), finePerDay);
 
-            await prisma.book.update({
-                where: { id: loan.bookId },
-                data: {
-                    availableQty: { increment: 1 },
-                    status: 'AVAILABLE'
+            const finePerDay = config ? parseFloat(config.value) : 2.5;
+
+            updateData.fineAmount = calculateFine(
+                loan.dueDate,
+                new Date(),
+                finePerDay
+            );
+
+            // Tudo abaixo PRECISA ser atômico
+            await prisma.$transaction(async (tx) => {
+
+                // 1️- Atualiza o empréstimo atual
+                await tx.loan.update({
+                    where: { id: loanId },
+                    data: updateData
+                });
+
+                // 2️- Busca a PRIMEIRA reserva válida da fila
+                const reservation = await tx.reservation.findFirst({
+                    where: {
+                        bookId: loan.bookId,
+                        status: 'ACTIVE'
+                    },
+                    orderBy: {
+                        position: 'asc'
+                    }
+                });
+
+                // 3️- Se NÃO houver reserva → livro volta pro estoque
+                if (!reservation) {
+                    await tx.book.update({
+                        where: { id: loan.bookId },
+                        data: {
+                            availableQty: { increment: 1 },
+                            status: 'AVAILABLE'
+                        }
+                    });
+                    return;
                 }
+
+                // 4️- Se houver reserva → cria novo empréstimo
+                const newLoan = await tx.loan.create({
+                    data: {
+                        userId: reservation.userId,
+                        bookId: loan.bookId,
+                        status: 'ACTIVE',
+                        loanDate: new Date(),
+                        dueDate: calculateDueDate() // ← você define essa função
+                    }
+                });
+
+                // 5️- Finaliza a reserva (NUNCA esqueça isso)
+                await tx.reservation.update({
+                    where: { id: reservation.id },
+                    data: {
+                        status: 'FULFILLED',
+                        fulfilledAt: new Date(),
+                        loanId: newLoan.id
+                    }
+                });
+            });
+        } else {
+            // Atualização simples de status (sem devolução)
+            await prisma.loan.update({
+                where: { id: loanId },
+                data: updateData
             });
         }
-        const updatedLoan = await prisma.loan.update({
-            where: { id: parseInt(id) },
-            data: updateData,
+
+        // Retorna o estado atualizado
+        const updatedLoan = await prisma.loan.findUnique({
+            where: { id: loanId },
             include: {
                 book: true,
                 user: {
@@ -122,15 +186,18 @@ export async function updateStatus(req, res){
                 }
             }
         });
-        res.json({
+
+        return res.json({
             message: 'Status atualizado com sucesso',
             loan: updatedLoan
         });
+
     } catch (error) {
-        console.error('Erro ao atualizar status: ', error);
-        res.status(500).json({error: 'Erro ao atualizar status'});
+        console.error('Erro ao atualizar status:', error);
+        return res.status(500).json({ error: 'Erro ao atualizar status' });
     }
 }
+
 
 export async function renew(req, res){
     try{
