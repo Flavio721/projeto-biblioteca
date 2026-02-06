@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { generateToken } from '../utils/jwt.js';
+import { AppError } from '../middlewares/errorHandle.js';
 
 const prisma = new PrismaClient();
 
@@ -12,14 +13,14 @@ export async function register(req, res){
             where: { email }
         });
         if(userExists){
-            return res.status(400).json({error: 'Email já cadastrado'});
+            return next(new AppError('Email já cadastrado', 400));
         }
 
         const cpfExists = await prisma.user.findUnique({
             where: { cpf }
         });
         if(cpfExists){
-            return res.status(400).json({error: 'CPF já cadastrado'})
+            return next(new AppError('Erro ao fazer login', 401));
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -56,7 +57,7 @@ export async function register(req, res){
     }
     catch(error) {
         console.error('Erro ao registrar: ', error);
-        res.status(500).json({error: 'Erro ao criar usuário'});
+        return next(new AppError('Erro ao registrar', 500));
     }
 }
 
@@ -69,16 +70,16 @@ export async function login(req, res){
         });
 
         if(!user){
-            return res.status(401).json({error: 'Email ou senha inválidos'});
+            return next(new AppError('Email ou senha inválidos', 401));    
         }
         if(!user.isActive){
-            return res.status(403).json({error: 'Usuário desativado'});
+            return next(new AppError('Usuário desativado', 403));    
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
 
         if(!validPassword){
-            return res.status(401).json({error: 'Email ou senha inválido'});
+            return next(new AppError('Email ou senha inválidos', 401));    
         }
 
         const token = generateToken({
@@ -102,7 +103,7 @@ export async function login(req, res){
     }
     catch(error){
         console.error('Erro ao fazer login: ', error);
-        res.status(500).json({error: 'Erro ao fazer login'})
+        return next(new AppError('Erro ao fazer login', 500));
     }
 }
 export async function me(req, res){
@@ -125,6 +126,6 @@ export async function me(req, res){
         res.json({ user });
     }
     catch(error){
-        res.status(500).json({error: 'Erro ao buscar dados do usuário'})
+        return next(new AppError('Erro ao buscar dados do usuário', 500));
     }
 }

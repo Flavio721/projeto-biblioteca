@@ -189,9 +189,129 @@
             color: #92400e;
             border-left: 4px solid #f59e0b;
         }
+        .toast {
+            min-width: 300px;
+            max-width: 500px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            animation: slideIn 0.3s ease-out;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Tipos de Toast */
+        .toast.error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .toast.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .toast.warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .toast.info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        /* Ícone */
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Conteúdo */
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Botão Fechar */
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 0;
+            margin-left: 8px;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        /* Barra de Progresso (opcional) */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: currentColor;
+            opacity: 0.3;
+            animation: progress 5s linear forwards;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
     </style>
 </head>
 <body>
+    <div id="toast-container"></div>
     <aside class="sidebar">
         <div style="padding: 0 1.5rem 1.5rem; font-size: 1.5rem; font-weight: bold;">
             📚 BiblioTech
@@ -369,7 +489,7 @@
                     dashboardRedirect(data.user.role);
                 }
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                showError(error.message, 'Erro ao carregar dados');
             }
         }
         
@@ -398,10 +518,66 @@
                     document.getElementById('activeLoans').textContent = data.stats.activeLoans || 0;
                 }
             } catch (error) {
-                console.error('Erro:', error);
+                showError(error.message, 'Erro ao carregar dados');
             }
         }
+        function showToast(message, type = 'info', duration = 5000, title = '') {
+            const container = document.getElementById('toast-container');
+            
+            // Criar elemento do toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // Ícones para cada tipo
+            const icons = {
+                error: '❌',
+                success: '✅',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            // Títulos padrão
+            const titles = {
+                error: title || 'Erro',
+                success: title || 'Sucesso',
+                warning: title || 'Atenção',
+                info: title || 'Informação'
+            };
+            
+            // Montar HTML
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+                ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
+            `;
+            
+            // Adicionar ao container
+            container.appendChild(toast);
+            
+            // Remover automaticamente após duração
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 300); // Espera animação terminar
+                }, duration);
+            }
+            
+            // Remover ao clicar
+            toast.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toast-close')) return;
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            });
+        }
 
+        // Atalhos para tipos específicos
+        function showError(message, title) {
+            showToast(message, 'error', 5000, title);
+        }
         function saveLoanConfig() {
             const config = {
                 loanDays: document.getElementById('loanDays').value,

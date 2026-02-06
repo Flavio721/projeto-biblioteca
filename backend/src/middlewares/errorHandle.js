@@ -11,7 +11,7 @@ const errorHandle = (err, req, res, next) =>{
     let { statusCode, message} = err;
 
     if(!statusCode) statusCode = 500;
-    if(!message) message = 'Erro interno do servidor';
+    if(!message) message = 'Erro! Tente novamente mais tarde';
 
     console.error('Erro: ', {
         message: err.message,
@@ -22,7 +22,7 @@ const errorHandle = (err, req, res, next) =>{
     // Erros do prisma
     if(err.code === 'P2002'){
         statusCode = 400;
-        message = 'Esse registro já existe';
+        message = 'O registro já existe!';
     };
     if(err.code === 'P2025'){
         statusCode = 404;
@@ -32,7 +32,7 @@ const errorHandle = (err, req, res, next) =>{
     // Erro do multer
     if(err.name === 'MulterError'){
         statusCode = 400;
-        message = 'Erro no upload do arquivo';
+        message = 'Erro! Tente novamente mais tarde';
     }
 
     res.status(statusCode).json({

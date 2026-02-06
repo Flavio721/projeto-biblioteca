@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { addDays, calculateFine } from "../utils/dateHelper.js";
+import { AppError } from '../middlewares/errorHandle.js';
+
 
 const prisma = new PrismaClient();
 
@@ -13,10 +15,10 @@ export async function create(req, res){
         });
 
         if(!book){
-            return res.status(404).json({error: 'Livro não encontrado'});
+            return next(new AppError('Livro não encontrado', 404));
         }
         if(book.availableQty < 1){
-            return res.status(400).json({error: 'Livro indisponível no momento'});
+            return next(new AppError('Livro indisponível no momento', 400));
         }
 
         const existingLoan = await prisma.loan.findFirst({
@@ -28,7 +30,7 @@ export async function create(req, res){
         });
 
         if(existingLoan){
-            return res.status(400).json({error: 'Você já possui um empréstimo ativo deste livro'});
+            return next(new AppError('Você já possui um empréstimo ativo deste livro', 400));
         }
 
         const overdueLoans = await prisma.loan.count({
@@ -39,7 +41,7 @@ export async function create(req, res){
         });
 
         if(overdueLoans > 0){
-            return res.status(403).json({error: 'Você já possui empréstimos em atraso. Regularize sua situação primeiro'});
+            return next(new AppError('Você já possui empréstimos em atraso. Regularize sua situação primeiro', 403));
         }
 
         const config = await prisma.systemConfig.findUnique({
@@ -76,7 +78,7 @@ export async function create(req, res){
         });
     } catch (error) {
         console.error('Erro ao criar empréstimo: ', error);
-        res.status(500).json({error: 'Erro ao criar emprést1imo'})
+            return next(new AppError('Erro ao criar empréstimo', 500));
     }
 }
 export async function createReserve(req, res) {
@@ -90,7 +92,7 @@ export async function createReserve(req, res) {
         });
 
         if (!book) {
-            return res.status(404).json({ error: 'Livro não encontrado' });
+            return next(new AppError('Livro não encontrado', 404));
         }
 
         // 2️⃣ Descobre a última posição DAQUELE livro
@@ -116,16 +118,12 @@ export async function createReserve(req, res) {
             }
         });
 
-        return res.status(201).json({
-            message: 'Reserva criada com sucesso',
-            reserve: newReserve
-        });
-
+            return res.status(201).json({reserve: newReserve});
     } catch (error) {
         console.error('Erro ao criar reserva:', error);
-        return res.status(500).json({ error: 'Erro ao criar reserva' });
+        return next(new AppError('Erro ao criar reserva', 500));
     }
-}
+}   
 
 export async function updateStatus(req, res) {
     try {
@@ -140,7 +138,7 @@ export async function updateStatus(req, res) {
         });
 
         if (!loan) {
-            return res.status(404).json({ error: 'Empréstimo não encontrado' });
+            return next(new AppError('Empréstimo não encontrado', 404));
         }
 
         const updateData = { status };
@@ -235,14 +233,10 @@ export async function updateStatus(req, res) {
             }
         });
 
-        return res.json({
-            message: 'Status atualizado com sucesso',
-            loan: updatedLoan
-        });
-
+            return res.json({loan: updatedLoan});
     } catch (error) {
         console.error('Erro ao atualizar status:', error);
-        return res.status(500).json({ error: 'Erro ao atualizar status' });
+        return next(new AppError('Erro ao atualizar status', 500));
     }
 }
 
@@ -256,16 +250,14 @@ export async function renew(req, res){
         });
 
         if(!loan){
-            return res.status(404).json({error: 'Empréstimo não encontrado'});
+            return next(new AppError('Empréstimo não encontrado', 404));
         }
 
         if(loan.userId !== req.user.id){
-            return res.status(400).json({error: 'Acesso negado'});
+            return next(new AppError('Acesso negado', 400));
         }
         if(new Date() > new Date(loan.dueDate)){
-            return res.status(400).json({
-                error: 'Não é possível renovar um empréstimo atrasado'
-            });
+            return next(new AppError('Não é possível renovar um empréstimo atrasado', 400));
         }
 
         const maxRenewals = await prisma.systemConfig.findUnique({
@@ -274,9 +266,7 @@ export async function renew(req, res){
         const maxRenewalsCount = maxRenewals ? parseInt(maxRenewals.value) : 2;
 
         if(loan.renewalCount >= maxRenewalsCount){
-            return res.status(400).json({
-                error: `Limite de renovações atingido (${maxRenewalsCount})`
-            });
+            return next(new AppError(`Limite de renovações atingido (${maxRenewalsCount})`, 400));
         }
 
         const loanDays = 14;
@@ -287,19 +277,16 @@ export async function renew(req, res){
                 renewalCount: { increment: 1 }
             }
         });
-        res.json({
-            message: 'Empréstimo renovado com sucesso',
-            loan: updatedLoan
-        });
+        return res.json({loan: updatedLoan});
     } catch (error) {
         console.error('Erro ao renovar empréstimo: ', error);
-        res.status(500).json({error: 'Erro ao renovar empréstimo'});
+        return next(new AppError('Erro ao renovar empréstimo', 500));
     }
 };
 
 export async function getMyLoans(req, res){
     try{
-        const { id } = req.user.id;
+        const id = parseInt(req.user.id);
 
         const loans = await prisma.loan.findMany({
             where: { userId: id },
@@ -316,10 +303,10 @@ export async function getMyLoans(req, res){
             },
             orderBy: { createdAt: 'desc' }
         });
-        res.json({loans})
+        return res.json({loans: loans});
     } catch (error) {
         console.error('Erro ao buscar meus empréstimos: ', error);
-        res.status(500).json({error: 'Erro ao buscar meus empréstimos'});
+        return next(new AppError('Erro ao buscar meus empréstimos', 500));
     }
 }
 
@@ -330,9 +317,7 @@ export async function getLoansByDate(req, res) {
 
 
     if (!startDate || !endDate) {
-        return res.status(400).json({
-            error: "Informe a data inicial e final"
-        });
+        return next(new AppError('Informe a data inicial e final', 400));
     }
 
     // início do dia
@@ -365,7 +350,7 @@ export async function getLoansByDate(req, res) {
     });
 
 
-    return res.json(loans);
+    return res.json({loans: loans});
 }
 export async function getAllFine(req, res){
     try{
@@ -382,11 +367,11 @@ export async function getAllFine(req, res){
             }
         });
 
-        return res.json({
+        return res.status(200).json({
             allFines: allFines
         });
     }catch(error){
         console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro na busca" });
+        return next(new AppError('Erro ao buscar multas', 500));
     }
 }

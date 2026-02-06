@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { AppError } from '../middlewares/errorHandle.js';
+
 
 const prisma = new PrismaClient();
 
@@ -12,7 +14,7 @@ export async function create(req, res){
         });
 
         if(!book){
-            return res.status(404).json({error: 'Livro não encontrado'});
+            return next(new AppError('Livro não encontrado', 404));
         }
 
         const existingReview = await prisma.review.findUnique({
@@ -25,7 +27,7 @@ export async function create(req, res){
         });
 
         if(existingReview){
-            return res.status(400).json({error: 'Você já avaliou este livro'});
+            return next(new AppError('Você já avaliou este livro', 400));
         }
 
         const review = await prisma.review.create({
@@ -42,13 +44,13 @@ export async function create(req, res){
             }
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             message: 'Avaliação criada com sucesso',
             review
         });
     }catch (error) {
         console.error('Erro ao criar avaliação: ', error);
-        res.status(500).json({error: 'Erro ao criar avaliação'});
+        return next(new AppError('Erro ao criar avaliação', 500));
     }
 }
 export async function update(req, res){
@@ -60,10 +62,10 @@ export async function update(req, res){
             where: { id: parseInt(id) } 
         });
         if(!review){
-            return res.status(404).json({error: 'A avaliação não existe'});
+            return next(new AppError('Avaliação não encontrada', 404));
         }
         if(review.userId !== req.user.id){
-            return res.status(403).json({error: 'Acesso negado'});
+            return next(new AppError('Acesso negado', 403));
         }
         
         const updatedReview = await prisma.review.update({
@@ -74,13 +76,13 @@ export async function update(req, res){
             }
         });
 
-        res.json({
+        return res.status(200).json({
             message: 'Avaliação atualizada com sucesso',
-            comment
+            review: updatedReview
         });
     }catch (error) {
         console.error('Erro ao atualizar avaliação: ', error);
-        res.status(500).json({error: 'Erro ao atualizar avaliação'});
+        return next(new AppError('Erro ao atualizar avaliação', 500));
     }
 }
 export async function remove(req, res){
@@ -92,19 +94,19 @@ export async function remove(req, res){
         });
 
         if(!review){
-            return res.status(404).json({error: 'Avaliação não encontrada'});
+            return next(new AppError('Avaliação não encontrada', 404));
         }
 
         if(review.userId !== req.user.id){
-            return res.status(403).json({error: 'Acesso negado'});
+            return next(new AppError('Acesso negado', 403));
         }
 
         await prisma.review.delete({
             where: { id: parseInt(id) }
         });
-        res.json({message: 'Avaliação deletada com sucesso'});
+        return res.status(200).json({message: 'Avaliação deletada com sucesso'});
     }catch (error) {
         console.error('Erro ao deletar avaliação: ', error);
-        res.status(500).json({error: 'Erro ao deletar avaliação'});
+        return next(new AppError('Erro ao deletar avaliação', 500));
     }
 }

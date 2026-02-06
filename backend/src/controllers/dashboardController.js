@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import { AppError } from '../middlewares/errorHandle.js';
+
 
 const prisma = new PrismaClient();
 
 export async function createActivity(req, res) {
   try {
-    const userId = req.user.id; // vindo do middleware de auth
+    const userId = req.user.id;
 
     const {
       action,
@@ -14,7 +16,6 @@ export async function createActivity(req, res) {
       metadata
     } = req.body;
 
-    // 🔒 Validação mínima (sem frescura)
     if (!action) {
       return res.status(400).json({ error: "action é obrigatória" });
     }

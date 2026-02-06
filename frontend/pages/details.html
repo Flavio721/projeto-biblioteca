@@ -545,10 +545,137 @@
             display: flex;
             gap: 5px;
         }
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        /* Toast Base */
+        .toast {
+            min-width: 300px;
+            max-width: 500px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            animation: slideIn 0.3s ease-out;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Tipos de Toast */
+        .toast.error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .toast.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .toast.warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .toast.info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        /* Ícone */
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Conteúdo */
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Botão Fechar */
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 0;
+            margin-left: 8px;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        /* Barra de Progresso (opcional) */
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: currentColor;
+            opacity: 0.3;
+            animation: progress 5s linear forwards;
+        }
+
         /* ===================== RESPONSIVE ===================== */
         @media (max-width: 768px) {
-        .book-header {
-            grid-template-columns: 1fr;
+            .book-header {
+                grid-template-columns: 1fr;
             }
             .form-actions {
                 flex-direction: column;
@@ -564,16 +691,21 @@
         }
         /* ===================== KEYFRAMES ===================== */
         @keyframes scaleIn {
-        from {
-            transform: scale(0);
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
         }
-        to {
-            transform: scale(1);
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
         }
-}
-</style>
+    </style>
 </head>
     <body>
+        <div id="toast-container"></div>
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-container">
@@ -867,13 +999,12 @@
         let bookName = undefined
 
         if (!bookId || isNaN(bookId)) {
-            console.error('ID inválido na URL');
+            showError('ID inválido na URL', 'Erro ao carregar livro');
         }
 
         async function registerActivity(action, note, entityType, entityId, bookName, dueDate){
             if(!action || !note || !entityType || !entityId || !bookName || !dueDate){
-                alert("Campo vazio!");
-                console.log(action, note, entityType, entityId, bookName, dueDate);
+                showError("Campo vazio!", 'Erro ao registrar atividade');
                 return;
             }
             const metadata = {
@@ -907,7 +1038,7 @@
 
                 }
             }catch(error){
-                console.error("Erro no registro após o try: ", error);
+                showError(error.message, 'Erro no registro de atividade');
                 return;
             }
         }
@@ -925,8 +1056,7 @@
                 bookName = book.title
                 fetchReviews();
             } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao carregar livro');
+                showError(error.message, 'Erro ao carregar livro');
             }
         }
         async function loadBookCover(cover){
@@ -947,11 +1077,11 @@
                 });
                 const data = await response.json();
                 if(!response.ok){
-                    console.error("Erro na busca dos dados pessoais: ", data.error);
+                    showError(data.message, 'Erro na busca dos dados pessoais');
                 }
                 dashboardRedirect(data.user.role);
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                showError(error.message, 'Erro ao carregar dados');
             }
         }
         // Definir redirecionamento do dashboard
@@ -976,12 +1106,69 @@
             })
             if(!res.ok){
                 const err = await res.json();
-                console.error(err);
+                showError(err.message, 'Erro ao verificar se o livro é favorito');
                 return;
             }
             const data = await res.json();
             toggleFavorite(data.favorite);
             return data.favorite;
+        }
+        function showToast(message, type = 'info', duration = 5000, title = '') {
+            const container = document.getElementById('toast-container');
+            
+            // Criar elemento do toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // Ícones para cada tipo
+            const icons = {
+                error: '❌',
+                success: '✅',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            // Títulos padrão
+            const titles = {
+                error: title || 'Erro',
+                success: title || 'Sucesso',
+                warning: title || 'Atenção',
+                info: title || 'Informação'
+            };
+            
+            // Montar HTML
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+                ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
+            `;
+            
+            // Adicionar ao container
+            container.appendChild(toast);
+            
+            // Remover automaticamente após duração
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 300); // Espera animação terminar
+                }, duration);
+            }
+            
+            // Remover ao clicar
+            toast.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toast-close')) return;
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            });
+        }
+
+        // Atalhos para tipos específicos
+        function showError(message, title) {
+            showToast(message, 'error', 5000, title);
         }
         // Exibir dados do livro
         function displayBook(book) {
@@ -1052,13 +1239,13 @@
                 const data = await res.json();
                 
                 if(!res.ok) {
-                    throw new Error(data.error || "Erro na busca das avaliações");
+                    showError(data.message, 'Erro na busca das avaliações');
                 }
                 
                 displayReviews(data.reviews, data.avgRating);
                 
             } catch(error) {
-                console.error("Erro ao buscar reviews:", error);
+                showError(error.message, 'Erro ao buscar reviews');
                 // Exibir UI vazia em caso de erro
                 displayReviews([], 0);
             }
@@ -1152,7 +1339,7 @@
             }).join('');
                 
             } catch (error) {
-                console.error('Erro ao carregar relacionados:', error);
+                showError(error.message, 'Erro ao carregar relacionados');
                 document.getElementById('recommendationsGrid').innerHTML = `
                     <div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--danger);">
                         ❌ Erro ao carregar livros relacionados
@@ -1163,7 +1350,7 @@
         // Emprestar livro
         async function borrowBook(bookId) {
             if (!token) {
-                alert('Faça login para solicitar empréstimo');
+                showError('Faça login para solicitar empréstimo', 'Erro ao solicitar empréstimo');
                 window.location.href = '/login';
                 return;
             }
@@ -1185,10 +1372,10 @@
                     loadBook();
                     registerActivity("LOAN_CREATED", `Empréstimo do livro '${bookName}'`, "LOAN", data.loan.id, bookName, data.loan.dueDate);
                 } else {
-                    alert(data.error || 'Erro ao solicitar empréstimo');
+                    showError(data.message, 'Erro ao solicitar empréstimo');
                 }
             } catch (error) {
-                alert('Erro ao conectar com servidor: ', error);
+                showError(error.message, 'Erro ao conectar com servidor');
             }
         }
         async function reserveBook(bookId){
@@ -1203,12 +1390,12 @@
                 });
                 const data = await res.json()
                 if(!res.ok){
-                    console.error("Erro na reserva: ", data.error);
+                    showError(data.message, 'Erro na reserva');
                     return;
                 }
                 registerActivity("RESERVE_CREATED", `Reservou o livro '${bookName}'`, "BOOK", data.reserve.id, bookName, data.reserve.reservedAt);
             }catch(error) {
-                console.error("Erro na reserva: ", error);
+                showError(error.message, 'Erro na reserva');
             }
         }
         async function addWishList(){
@@ -1223,13 +1410,12 @@
                 });
                 const data = await res.json();
                 if(!res.ok){
-                    console.error("Erro para adicionar na lista de desejos: ", data.error);
+                    showError(data.message, 'Erro para adicionar na lista de desejos');
                     return;
                 }
-                console.log("Item adicionado na lista de desejos");
                 registerActivity("WISHLIST_ADDED", `Livro '${bookName}' adicionado na lista de desejos`, "BOOK", data.item.id, bookName, data.item.createdAt);
             }catch(error){
-                console.error("Erro ao adicionar: ", error);
+                showError(error.message, 'Erro ao adicionar na lista de desejos');
             }
         }
         // Toggle favorito
@@ -1255,7 +1441,7 @@
                 });
                 const data = await res.json()
                 if(!res.ok){
-                    console.error("Erro ao desfavoritar: ", data.error);
+                    showError(data.message, 'Erro ao desfavoritar');
                     return;
                 }
                 btn.classList.remove('active')
@@ -1272,10 +1458,9 @@
                 })
             });
                 if(!res.ok){
-                    throw new Error("Erro ao favoritar");
+                    showError(data.message, 'Erro ao favoritar');
                 }
                 const data = await res.json();
-                console.log(data.message);
                 btn.classList.toggle('active');
                 registerActivity("BOOK_FAVORITED", `Você adicionou '${bookName}' aos favoritos`, "BOOK", data.favorite.id, bookName, data.favorite.createdAt);
             }
@@ -1289,7 +1474,7 @@
 
 
                 if (!rating) {
-                    alert('Por favor, selecione uma avaliação');
+                    showError('Por favor, selecione uma avaliação', 'Erro ao avaliar livro');
                     return;
                 }
 
@@ -1308,9 +1493,8 @@
                 });
                 const data = await res.json();
                 if(!res.ok){
-                    console.error("Erro no envio da review: ", data.error);
+                    showError(data.message, 'Erro no envio da review');
                 }
-                console.log(data.review)
             })
         // Trocar aba
         function showTab(index) {

@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
+import { AppError } from '../middlewares/errorHandle.js';
+
 
 const prisma = new PrismaClient();
 
@@ -9,7 +11,7 @@ export async function favorite(req, res){
         const userId = req.user.id;
 
         if(!bookId){
-            return res.status(400).json({error: 'BookID é obrigatório'});
+            return next(new AppError('BookID é obrigatório', 400));
         }
 
         const favoriteExists = await prisma.favorite.findFirst({
@@ -19,7 +21,7 @@ export async function favorite(req, res){
             }
         });
         if(favoriteExists){
-            return res.status(400).json({error: 'Você já favoritou este livro!'});
+            return next(new AppError('Você já favoritou este livro!', 400));
         }
 
         const favorite = await prisma.favorite.create({
@@ -32,14 +34,14 @@ export async function favorite(req, res){
                     select: { id: true, name: true}
                 }
             }
-        })
+        });
         res.status(201).json({
             message: 'Favoritado com sucesso',
             favorite
         });
     } catch(error){
         console.error('Erro ao favoritar: ', error);
-        return res.status(500).json({error: 'Erro ao favoritar'});
+        return next(new AppError('Erro ao favoritar', 500));
     }
 }
 export async function countFavorites(req, res){
@@ -54,7 +56,7 @@ export async function countFavorites(req, res){
         return res.json({total})
     }catch (error){
         console.error("Erro ao contar favoritos: ", error);
-        res.status(500).json({error: 'Erro ao contar favoritos'});
+        return next(new AppError('Erro ao contar favoritos', 500));
     }
 }
 export async function viewAllFavorites(req, res){
@@ -71,7 +73,7 @@ export async function viewAllFavorites(req, res){
         res.json({bookIds});
     } catch (error){
         console.error("Erro ao buscar favoritos: ", error);
-        res.status(500).json({error: 'Erro ao buscar favoritos'})
+        return next(new AppError('Erro ao buscar favoritos', 500));
     }
 }
 export async function desfavorite(req, res){
@@ -86,7 +88,7 @@ export async function desfavorite(req, res){
         }
 
         if (!Number.isInteger(userId) || !Number.isInteger(bookId)) {
-            return res.status(400).json({ error: 'ID inválido' });
+            return next(new AppError('ID inválido', 400));
         }
         
         const favoriteExists = await prisma.favorite.findUnique({
@@ -98,7 +100,7 @@ export async function desfavorite(req, res){
             }
         });
         if(!favoriteExists){
-            return res.status(404).json({error: 'Este livro não está marcado como favorito'});
+            return next(new AppError('Este livro não está marcado como favorito', 404));
         }
         const favoriteRemove = await prisma.favorite.delete({
             where: { 
@@ -113,7 +115,7 @@ export async function desfavorite(req, res){
         })
     }catch(error) {
         console.error("Erro ao remover dos favoritos: ", error);
-        res.status(500).json({ error: "Erro ao remover dos favoritos"});
+        return next(new AppError('Erro ao remover dos favoritos', 500));
     }
 }
 export async function update(req, res){
@@ -125,7 +127,7 @@ export async function update(req, res){
             where: { id: parseInt(userId) }
         });
         if(!userExists){
-            return res.status(404).json({ error: "Usuário não encontrado"});
+            return next(new AppError('Usuário não encontrado', 404));
         }
         const updateUser = await prisma.user.update({
             where: { id: parseInt(userId) },
@@ -143,7 +145,7 @@ export async function update(req, res){
         });
     }catch(error) {
         console.error(error);
-        res.status(500).json({ error: "Erro ao atualizar usuário"});
+        return next(new AppError('Erro ao atualizar usuário', 500));
     }
 }
 export async function uploadProfileImage(req, res) {
@@ -171,9 +173,7 @@ export async function uploadProfileImage(req, res) {
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
-            error: 'Erro ao salvar imagem'
-        });
+        return next(new AppError('Erro ao salvar imagem', 500));
     }
 }
 export async function newPassword(req, res) {
@@ -182,9 +182,7 @@ export async function newPassword(req, res) {
         const userId = Number(req.user.id);
 
         if (!currentPassword || !newPassword) {
-            return res.status(400).json({
-                error: 'Senha atual e nova senha são obrigatórias'
-            });
+            return next(new AppError('Erro ao comparar senhas', 400));
         }
 
         const user = await prisma.user.findUnique({
@@ -192,9 +190,7 @@ export async function newPassword(req, res) {
         });
 
         if (!user) {
-            return res.status(404).json({
-                error: 'Usuário não encontrado'
-            });
+            return next(new AppError('Usuário não encontrado', 404));
         }
 
         const passwordMatch = await bcrypt.compare(
@@ -203,9 +199,7 @@ export async function newPassword(req, res) {
         );
 
         if (!passwordMatch) {
-            return res.status(401).json({
-                error: 'Senha atual incorreta'
-            });
+            return next(new AppError('Senha atual incorreta', 401));
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -223,9 +217,7 @@ export async function newPassword(req, res) {
 
     } catch (error) {
         console.error('Erro ao atualizar senha:', error);
-        return res.status(500).json({
-            error: 'Erro na atualização da senha'
-        });
+        return next(new AppError('Erro ao atualizar senha', 500));
     }
 }
 export async function popularUsers(req, res){
@@ -254,39 +246,39 @@ export async function popularUsers(req, res){
         });
     }catch(error) {
         console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro na busca"} );
+        return next(new AppError('Erro ao retornar usuários populares', 500));
     }
 }
-        export async function getWishList(req, res){
-            try{
-                const userId = req.user.id;
+export async function getWishList(req, res){
+    try{
+        const userId = req.user.id;
 
-                const userWishList = await prisma.wishlist.findFirst({
-                    where: {
-                        userId: userId
-                    }
-                });
-
-                if(!userWishList){
-                    return res.status(404).json({ error: "Lista de desejos não encontrada" });
-                }
-
-                const userWishListItems = await prisma.wishlistItem.findMany({
-                    where: {
-                        wishlistId: userWishList.id
-                    }
-                });
-
-                return res.status(201).json({
-                    message: "Lista de desejos encontrada",
-                    wishlist: userWishList,
-                    items: userWishListItems
-                });
-            }catch(error){
-                console.error("Erro: ", error);
-                return res.status(500).json({ error: "Erro na busca da lista de desejos" });
+        const userWishList = await prisma.wishlist.findFirst({
+            where: {
+                userId: userId
             }
+        });
+
+        if(!userWishList){
+            return next(new AppError('Lista de desejos não encontrada', 404));
         }
+
+        const userWishListItems = await prisma.wishlistItem.findMany({
+            where: {
+                wishlistId: userWishList.id
+            }
+        });
+
+        return res.status(201).json({
+            message: "Lista de desejos encontrada",
+            wishlist: userWishList,
+            items: userWishListItems
+        });
+    }catch(error){
+        console.error("Erro: ", error);
+        return next(new AppError('Erro ao retornar lista de desejos', 500));
+    }
+}
 export async function addWishList(req, res){
     try{
         const { bookId } = req.body;
@@ -298,7 +290,7 @@ export async function addWishList(req, res){
                 }
         });
         if(!wishlist){
-            return res.status(404).json({ error: "Lista de desejos não encontrada" })
+            return next(new AppError('Lista de desejos não encontrada', 404));
         }
 
         const alreadyExists = await prisma.wishlistItem.findUnique({
@@ -311,7 +303,7 @@ export async function addWishList(req, res){
         });
         
         if(alreadyExists){
-            return res.status(409).json({ error: "Livro já está na lista de desejos"})
+            return next(new AppError('Livro já está na lista de desejos', 409));
         };
 
         const registerItem = await prisma.wishlistItem.create({
@@ -327,7 +319,6 @@ export async function addWishList(req, res){
         });
     }catch(error){
         console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro para adicionar livro na lista de desejos"});
+        return next(new AppError('Erro ao adicionar na lista de desejos', 500));
     }
-
 }

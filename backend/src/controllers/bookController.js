@@ -1,13 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { getPopularBooks, getPopularCategories } from '../services/bookService.js';
+import { AppError } from '../middlewares/errorHandle.js';
+
 
 const prisma = new PrismaClient();
 
 export async function create(req, res) {
   try {
-    console.log('BODY:', req.body);
-    console.log('FILE:', req.file);
-
     const {
       isbn,
       title,
@@ -23,7 +22,7 @@ export async function create(req, res) {
     } = req.body;
 
     if (!isbn || !title || !author || !quantity) {
-      return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+      return next(new AppError('Campos obrigatórios faltando', 400));
     }
 
     const imageUrl = req.file
@@ -47,11 +46,11 @@ export async function create(req, res) {
       }
     });
 
-    return res.status(201).json(book);
+    return res.status(201).json({book: book});
 
   } catch (error) {
     console.error('CREATE BOOK ERROR:', error);
-    return res.status(500).json({ error: 'Erro ao criar livro' });
+    return next(new AppError('Erro ao criar livro', 500));
   }
 }
 
@@ -102,7 +101,7 @@ export async function list(req, res){
                 };
             })
         );
-        res.json({
+        return res.json({
             books: booksWithRatings,
             pagination: {
                 page: parseInt(page),
@@ -114,7 +113,7 @@ export async function list(req, res){
     }
     catch(error) {
         console.error('Erro ao listar os livros', error);
-        res.status(500).json({error: 'Erro ao listar os livros'})
+        return next(new AppError('Erro ao listar os livros', 500));
     }
 };
 export async function getById(req, res){
@@ -122,7 +121,7 @@ export async function getById(req, res){
         const id = Number(req.params.id);
         
         if (isNaN(id)) {
-            return res.status(400).json({ error: 'ID inválido' });
+            return next(new AppError('ID inválido', 400));
         }
 
         const book = await prisma.book.findUnique({
@@ -142,7 +141,7 @@ export async function getById(req, res){
             }
         });
         if(!book){
-            return res.status(404).json({error: 'Livro não encontrado'});
+            return next(new AppError('Livro não encontrado', 404));
         }
 
         const avgRating = book.reviews.length > 0 ? book.reviews.reduce((sum, r) => sum + r.rating, 0) / book.reviews.length : 0;
@@ -154,7 +153,7 @@ export async function getById(req, res){
      }
      catch(error) {
         console.error('Erro ao buscar o livro: ', error);
-        res.status(500).json({error: 'Erro ao buscar livro'});
+        return next(new AppError('Erro ao buscar livro', 500));
      }
 };
 export async function update(req, res){
@@ -174,16 +173,16 @@ export async function update(req, res){
             where: { id: parseInt(id) },
             data: updateData
         })
-        res.json({
+        return res.json({
             message: 'Livro atualizado com sucesso',
             book
         });
     } catch (error){
         if(error.code === 'P2025'){
-            return res.status(404).json({error: 'Livro não encontrado'});
+            return next(new AppError('Livro não encontrado', 404));
         }
         console.error('Erro ao atualizar o livro: ', error);
-        res.status(500).json({error: 'Erro ao atualizar o livro'});
+        return next(new AppError('Erro ao atualizar o livro', 500));
     }
 }
 
@@ -198,21 +197,19 @@ export async function remove(req, res){
             }
         });
         if(activeLoans > 0){
-            return res.status(400).json({
-                error: 'Não é possível deletar. Existem empréstimos ativos deste livro'
-            });
+            return next(new AppError('Não é possível deletar. Existem empréstimos ativos deste livro', 400));
         }
         await prisma.book.delete({
             where: { id: parseInt(id) }
         });
 
-        res.json({message: 'Livro deletado com sucesso'});
+        return res.json({message: 'Livro deletado com sucesso'});
     } catch(error) {
         if(error.code === 'P2025'){
-            res.status(404).json({error: 'Livro não encontrado'});
+            return next(new AppError('Livro não encontrado', 404));
         }
         console.error('Não foi possível remover o livro: ', error);
-        res.status(500).json({error: 'Erro ao deletar o livro'});
+        return next(new AppError('Erro ao deletar o livro', 500));
     }
 }
 
@@ -228,7 +225,7 @@ export async function getCategories(req, res){
         });
     } catch (error){
         console.error('Erro ao buscar categorias: ', error);
-        res.status(500).json({error: 'Erro ao buscar categorias'});
+        return next(new AppError('Erro ao buscar categorias', 500));
     }
 }
 export async function popularBooks(req, res){
@@ -240,7 +237,7 @@ export async function popularBooks(req, res){
         });
     }catch(error) {
         console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro na busca dos livros"} );
+        return next(new AppError('Erro ao buscar livros populares', 500));
     }
 }
 export async function popularCategories(req, res) {
@@ -252,6 +249,6 @@ export async function popularCategories(req, res) {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Erro ao buscar categorias populares' });
+        return next(new AppError('Erro ao buscar categorias populares', 500));
     }
 }
