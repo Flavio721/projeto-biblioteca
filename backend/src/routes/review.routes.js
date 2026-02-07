@@ -3,6 +3,7 @@ import { create, update, remove } from '../controllers/reviewController.js';
 import { reviewValidation } from '../middlewares/validator.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { PrismaClient } from '@prisma/client';
+import { searchLimiter } from '../config/rateLimit.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -17,7 +18,7 @@ router.put('/:id', authMiddleware, update);
 
 router.delete('/:id', authMiddleware, remove);
 
-router.get('/book-reviews/:bookId', authMiddleware, async (req, res) => {
+router.get('/book-reviews/:bookId', searchLimiter, authMiddleware, async (req, res) => {
     try {
         const bookId = parseInt(req.params.bookId);
 

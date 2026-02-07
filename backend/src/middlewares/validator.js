@@ -1,13 +1,21 @@
 import { body, param, query, validationResult } from 'express-validator';
+import { AppError } from './errorHandle.js';
 
 const validate = (req, res, next) => {
     const errors = validationResult(req);
-
-    if(!errors.isEmpty()){
-        return res.status(400).json({errors: errors.array()});
+  
+    if (!errors.isEmpty()) {
+      return next(
+        new AppError(
+          errors.array().map(e => e.msg).join(', '),
+          400
+        )
+      );
     }
+  
     next();
-}
+  };
+  
 
 export const authValidation = {
     register: [

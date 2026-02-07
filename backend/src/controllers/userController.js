@@ -5,7 +5,7 @@ import { AppError } from '../middlewares/errorHandle.js';
 
 const prisma = new PrismaClient();
 
-export async function favorite(req, res){
+export async function favorite(req, res, next){
     try{
         const { bookId } = req.body;
         const userId = req.user.id;
@@ -44,7 +44,7 @@ export async function favorite(req, res){
         return next(new AppError('Erro ao favoritar', 500));
     }
 }
-export async function countFavorites(req, res){
+export async function countFavorites(req, res, next){
     try{
         const userId = req.user.id;
 
@@ -76,7 +76,7 @@ export async function viewAllFavorites(req, res){
         return next(new AppError('Erro ao buscar favoritos', 500));
     }
 }
-export async function desfavorite(req, res){
+export async function desfavorite(req, res, next){
     try{
         let bookId = undefined
         const userId = Number(req.user.id);
@@ -118,7 +118,7 @@ export async function desfavorite(req, res){
         return next(new AppError('Erro ao remover dos favoritos', 500));
     }
 }
-export async function update(req, res){
+export async function update(req, res, next){
     try{
         const { name, cpf, email, phone, address} = req.body;
         const userId = req.user.id;
@@ -148,7 +148,7 @@ export async function update(req, res){
         return next(new AppError('Erro ao atualizar usuário', 500));
     }
 }
-export async function uploadProfileImage(req, res) {
+export async function uploadProfileImage(req, res, next) {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -176,7 +176,7 @@ export async function uploadProfileImage(req, res) {
         return next(new AppError('Erro ao salvar imagem', 500));
     }
 }
-export async function newPassword(req, res) {
+export async function newPassword(req, res, next) {
     try {
         const { currentPassword, newPassword } = req.body;
         const userId = Number(req.user.id);
@@ -220,7 +220,7 @@ export async function newPassword(req, res) {
         return next(new AppError('Erro ao atualizar senha', 500));
     }
 }
-export async function popularUsers(req, res){
+export async function popularUsers(req, res, next){
     try{
         const users = await prisma.user.findMany({
                 include: {
@@ -249,7 +249,7 @@ export async function popularUsers(req, res){
         return next(new AppError('Erro ao retornar usuários populares', 500));
     }
 }
-export async function getWishList(req, res){
+export async function getWishList(req, res, next){
     try{
         const userId = req.user.id;
 
@@ -279,7 +279,7 @@ export async function getWishList(req, res){
         return next(new AppError('Erro ao retornar lista de desejos', 500));
     }
 }
-export async function addWishList(req, res){
+export async function addWishList(req, res, next){
     try{
         const { bookId } = req.body;
         const userId = req.user.id;

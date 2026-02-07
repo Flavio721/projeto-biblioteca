@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { AppError } from '../middlewares/errorHandle.js';
-
+import { sanitizeText } from "../utils/sanitize.js";
+import { AppError } from "../middlewares/errorHandle.js";
 
 const prisma = new PrismaClient();
 
-export async function createActivity(req, res) {
+export async function createActivity(req, res, next) {
   try {
     const userId = req.user.id;
 
@@ -20,11 +20,13 @@ export async function createActivity(req, res) {
       return res.status(400).json({ error: "action é obrigatória" });
     }
 
+    const cleanNote = sanitizeText(note ?? "");
+
     const activity = await prisma.userActivity.create({
       data: {
         userId,
         action,
-        note,
+        note: cleanNote,
         entityType,
         entityId,
         metadata
@@ -34,6 +36,6 @@ export async function createActivity(req, res) {
     return res.status(201).json(activity);
   } catch (error) {
     console.error("Erro ao criar activity:", error);
-    return res.status(500).json({ error: "Erro interno do servidor" });
+    return next(new AppError('Erro ao criar activity', 500));
   }
 }

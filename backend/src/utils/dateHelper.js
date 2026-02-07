@@ -18,3 +18,13 @@ export function addDays(date, days){
     const daysOverdue = getDaysDifference(new Date(dueDate), actualReturnDate);
     return daysOverdue * finePerDay;
 }
+export function maskIsbn(isbn) {
+    if (!isbn) return false;
+
+    const numbers = isbn.replace(/\D/g, '');
+    if (numbers.length !== 13) return false;
+
+    const limited = numbers.slice(0, 13);
+
+    return limited.replace(/(\d{3})(\d)(\d{3})(\d{5})(\d)/, '$1-$2-$3-$4-$5');
+}

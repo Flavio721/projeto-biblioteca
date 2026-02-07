@@ -1,11 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { getPopularBooks, getPopularCategories } from '../services/bookService.js';
 import { AppError } from '../middlewares/errorHandle.js';
+import { sanitizeText } from "../utils/sanitize.js";
+import { maskIsbn } from "../utils/dateHelper.js";
 
 
 const prisma = new PrismaClient();
 
-export async function create(req, res) {
+export async function create(req, res, next) {
   try {
     const {
       isbn,
@@ -25,13 +27,21 @@ export async function create(req, res) {
       return next(new AppError('Campos obrigatórios faltando', 400));
     }
 
+    const checkIsbn = await maskIsbn(isbn);
+
+    if(!checkIsbn){
+        return next(new AppError('ISBN inválido', 400));
+    }
+
     const imageUrl = req.file
       ? `/uploads/${req.file.filename}`
       : null;
 
+    const cleanDescription = sanitizeText(description);
+
     const book = await prisma.book.create({
       data: {
-        isbn,
+        isbn: checkIsbn,
         title,
         author,
         category,
@@ -39,7 +49,7 @@ export async function create(req, res) {
         publishYear: publishYear ? Number(publishYear) : null,
         pages: pages ? Number(pages) : null,
         language,
-        description: description || null,
+        description: cleanDescription || null,
         quantity: Number(quantity),
         location: location || null,
         coverImage: imageUrl
@@ -54,7 +64,7 @@ export async function create(req, res) {
   }
 }
 
-export async function list(req, res){
+export async function list(req, res, next){
     try{
         const{
             search, category, status, page = 1, limit = 10, sortBy = 'title', order = 'asc',
@@ -116,7 +126,7 @@ export async function list(req, res){
         return next(new AppError('Erro ao listar os livros', 500));
     }
 };
-export async function getById(req, res){
+export async function getById(req, res, next){
     try{
         const id = Number(req.params.id);
         
@@ -186,7 +196,7 @@ export async function update(req, res){
     }
 }
 
-export async function remove(req, res){
+export async function remove(req, res, next){
     try{
         const { id } = req.params;
 
@@ -213,7 +223,7 @@ export async function remove(req, res){
     }
 }
 
-export async function getCategories(req, res){
+export async function getCategories(req, res, next){
     try{
         const categories = await prisma.book.findMany({
             select: { category: true },
@@ -228,7 +238,7 @@ export async function getCategories(req, res){
         return next(new AppError('Erro ao buscar categorias', 500));
     }
 }
-export async function popularBooks(req, res){
+export async function popularBooks(req, res, next){
     try{
         const books = await getPopularBooks();
 
@@ -240,7 +250,7 @@ export async function popularBooks(req, res){
         return next(new AppError('Erro ao buscar livros populares', 500));
     }
 }
-export async function popularCategories(req, res) {
+export async function popularCategories(req, res, next) {
     try {
         const categories = await getPopularCategories();
 

@@ -5,7 +5,7 @@ import { AppError } from '../middlewares/errorHandle.js';
 
 const prisma = new PrismaClient();
 
-export async function create(req, res){
+export async function create(req, res, next){
     try{
         const { bookId } = req.body;
         const userId = req.user.id;
@@ -81,7 +81,7 @@ export async function create(req, res){
             return next(new AppError('Erro ao criar empréstimo', 500));
     }
 }
-export async function createReserve(req, res) {
+export async function createReserve(req, res, next) {
     try {
         const userId = parseInt(req.user.id);
         const { bookId } = req.body;
@@ -125,7 +125,7 @@ export async function createReserve(req, res) {
     }
 }   
 
-export async function updateStatus(req, res) {
+export async function updateStatus(req, res, next) {
     try {
         const { id } = req.params;
         const { status, notes } = req.body;
@@ -241,7 +241,7 @@ export async function updateStatus(req, res) {
 }
 
 
-export async function renew(req, res){
+export async function renew(req, res, next){
     try{
         const { id } = req.params;
 
@@ -284,7 +284,7 @@ export async function renew(req, res){
     }
 };
 
-export async function getMyLoans(req, res){
+export async function getMyLoans(req, res, next){
     try{
         const id = parseInt(req.user.id);
 
@@ -311,7 +311,7 @@ export async function getMyLoans(req, res){
 }
 
 
-export async function getLoansByDate(req, res) {
+export async function getLoansByDate(req, res, next) {
     const startDate = req.query.startDate || req.query.start;
     const endDate = req.query.endDate || req.query.end;
 
@@ -352,7 +352,7 @@ export async function getLoansByDate(req, res) {
 
     return res.json({loans: loans});
 }
-export async function getAllFine(req, res){
+export async function getAllFine(req, res, next){
     try{
         const allFines = await prisma.loan.findMany({
             where: {

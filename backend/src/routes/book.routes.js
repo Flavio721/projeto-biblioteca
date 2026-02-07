@@ -6,11 +6,12 @@ import { checkRole, isLibrarian } from '../middlewares/roles.js';
 import { upload } from '../config/multer.js';
 import { PrismaClient } from '@prisma/client';
 import { desfavorite } from '../controllers/userController.js';
+import { searchLimiter, apiLimiter } from '../config/rateLimit.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get('/', list);
+router.get('/', searchLimiter, list);
 router.get('/length', async (req, res) => {
     const count = await prisma.book.count();
     res.json({ length: count});
@@ -73,7 +74,7 @@ router.post('/create',
     create,
     bookValidation.create
 );
-router.post('/book-filter', authMiddleware, async (req, res) => {
+router.post('/book-filter', searchLimiter, authMiddleware, async (req, res) => {
     try{
         const { category } = req.body;
         
@@ -98,7 +99,7 @@ router.put('/:id',
     update,
     bookValidation.update
 );
-router.get('/:id', getById);
+router.get('/:id', apiLimiter, getById);
 
 router.delete('/:id',
     authMiddleware,

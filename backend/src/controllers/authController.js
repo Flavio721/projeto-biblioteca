@@ -5,10 +5,13 @@ import { AppError } from '../middlewares/errorHandle.js';
 
 const prisma = new PrismaClient();
 
-export async function register(req, res){
+export async function register(req, res, next){
     try{
         const { name, email, cpf, phone, address, password } = req.body;
 
+        if(!email || !password || !cpf){
+            return next(new AppError('Campos obrigatórios vazios', 400));
+        }
         const userExists = await prisma.user.findUnique({
             where: { email }
         });
@@ -20,7 +23,7 @@ export async function register(req, res){
             where: { cpf }
         });
         if(cpfExists){
-            return next(new AppError('Erro ao fazer login', 401));
+            return next(new AppError('CPF já registrado', 401));
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -61,7 +64,7 @@ export async function register(req, res){
     }
 }
 
-export async function login(req, res){
+export async function login(req, res, next){
     try{
         const { email, password } = req.body;
 
@@ -106,7 +109,7 @@ export async function login(req, res){
         return next(new AppError('Erro ao fazer login', 500));
     }
 }
-export async function me(req, res){
+export async function me(req, res, next){
     try{
         const user = await prisma.user.findUnique({
             where: {id: req.user.id},

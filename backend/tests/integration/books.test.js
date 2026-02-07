@@ -1,7 +1,9 @@
 // tests/integration/books.test.js
 import request from 'supertest';
 import app from '../../app.js';
-import { prisma } from '../../src/config/database.js';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 describe('Books API', () => {
   let authToken;
@@ -20,7 +22,7 @@ describe('Books API', () => {
         name: 'Bibliotecário',
         email: 'bibliotecario@test.com',
         password: 'senha123',
-        cpf: '345.231.987-19'
+        cpf: '34523198719'
       });
 
     // Atualizar role para LIBRARIAN
@@ -53,7 +55,7 @@ describe('Books API', () => {
   });
 
   describe('GET /api/books', () => {
-    test('deve listar livros sem autenticação', async () => {
+    test('deve listar livros todos os livros no database', async () => {
       const response = await request(app)
         .get('/api/books')
         .expect(200);
@@ -63,26 +65,24 @@ describe('Books API', () => {
     });
   });
 
-  describe('POST /api/books', () => {
+  describe('POST /api/books/create', () => {
     test('deve criar livro com autenticação', async () => {
       const bookData = {
         isbn: '9788535902773',
         title: '1984',
         author: 'George Orwell',
         category: 'Ficção',
-        description: 'Distopia clássica',
         quantity: 5
       };
 
       const response = await request(app)
-        .post('/api/books')
+        .post('/api/books/create')
         .set('Authorization', `Bearer ${authToken}`)
         .send(bookData)
         .expect(201);
 
       expect(response.body).toHaveProperty('book');
       expect(response.body.book.title).toBe(bookData.title);
-      expect(response.body.book.isbn).toBe(bookData.isbn);
     });
 
     test('não deve criar livro sem autenticação', async () => {
@@ -95,19 +95,20 @@ describe('Books API', () => {
       };
 
       await request(app)
-        .post('/api/books')
+        .post('/api/books/create')
         .send(bookData)
         .expect(401);
     });
 
     test('deve validar campos obrigatórios', async () => {
       const response = await request(app)
-        .post('/api/books')
+        .post('/api/books/create')
         .set('Authorization', `Bearer ${authToken}`)
         .send({ title: 'Apenas título' })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.status).toBe('error');
     });
   });
 

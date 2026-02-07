@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { AppError } from '../middlewares/errorHandle.js';
+import { sanitizeText } from "../utils/sanitize.js";
 
 
 const prisma = new PrismaClient();
 
-export async function create(req, res){
+export async function create(req, res, next){
     try{
         const { bookId, rating, comment } = req.body;
         const userId = req.user.id;
@@ -12,6 +13,8 @@ export async function create(req, res){
         const book = await prisma.book.findUnique({
             where: { id: parseInt(bookId) }
         });
+
+        const cleanComment = await sanitizeText(comment);
 
         if(!book){
             return next(new AppError('Livro não encontrado', 404));
@@ -35,7 +38,7 @@ export async function create(req, res){
                 userId,
                 bookId: parseInt(bookId),
                 rating: parseInt(rating),
-                comment
+                comment: cleanComment
             },
             include: {
                 user: {
@@ -53,7 +56,7 @@ export async function create(req, res){
         return next(new AppError('Erro ao criar avaliação', 500));
     }
 }
-export async function update(req, res){
+export async function update(req, res, next){
     try{
         const { id } = req.params;
         const { rating, comment } = req.body;
@@ -85,7 +88,7 @@ export async function update(req, res){
         return next(new AppError('Erro ao atualizar avaliação', 500));
     }
 }
-export async function remove(req, res){
+export async function remove(req, res, next){
     try{
         const { id } = req.params;
 
