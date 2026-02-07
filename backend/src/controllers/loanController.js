@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { addDays, calculateFine } from "../utils/dateHelper.js";
 import { AppError } from '../middlewares/errorHandle.js';
+import { sendEmail } from "../services/emailService.js";
 
 
 const prisma = new PrismaClient();
@@ -9,6 +10,10 @@ export async function create(req, res, next){
     try{
         const { bookId } = req.body;
         const userId = req.user.id;
+
+        if(!bookId || !userId){
+            return next(new AppError('Campos obrigatórios faltando', 400));
+        }
 
         const book = await prisma.book.findUnique({
             where: { id: parseInt(bookId) }
@@ -70,7 +75,7 @@ export async function create(req, res, next){
                 status: book.availableQty - 1 === 0 ? 'BORROWED' : book.status
             }
         });
-        sendLoanConfirmationEmail(loan.user, loan.book, loan)
+        sendEmail(loan.user, loan.book, loan)
             .catch(err => console.error('Erro ao enviar email:', err));
         return res.status(201).json({
             message: 'Solicitação de empréstimo criada com sucesso',
@@ -80,6 +85,13 @@ export async function create(req, res, next){
         console.error('Erro ao criar empréstimo: ', error);
             return next(new AppError('Erro ao criar empréstimo', 500));
     }
+}
+export async function list(req, res){
+    const loans = await prisma.loan.findMany();
+
+    return res.status(200).json({
+        loans: loans
+    })
 }
 export async function createReserve(req, res, next) {
     try {

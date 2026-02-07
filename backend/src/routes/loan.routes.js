@@ -1,5 +1,5 @@
 import express from 'express';
-import { create, getMyLoans, renew, updateStatus, getLoansByDate, getAllFine, createReserve } from '../controllers/loanController.js';
+import { create, getMyLoans, renew, updateStatus, getLoansByDate, getAllFine, createReserve, list } from '../controllers/loanController.js';
 import { loanValidation } from '../middlewares/validator.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkRole, isAdmin, isLibrarian } from '../middlewares/roles.js';
@@ -14,6 +14,7 @@ router.post('/create',
     loanValidation.create,
     create
 );
+router.get('/', authMiddleware, list)
 router.get('/my-loans', authMiddleware, getMyLoans);
 router.get('/my-loans/active', authMiddleware, async (req, res) => {
     const loansActives = await prisma.loan.findMany({
