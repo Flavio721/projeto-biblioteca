@@ -1,63 +1,69 @@
-import express from 'express';
-import { create, update, remove } from '../controllers/reviewController.js';
-import { reviewValidation } from '../middlewares/validator.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { PrismaClient } from '@prisma/client';
-import { searchLimiter } from '../config/rateLimit.js';
+import express from "express";
+import {
+  create,
+  update,
+  remove,
+  list,
+} from "../controllers/reviewController.js";
+import { reviewValidation } from "../middlewares/validator.js";
+import { authMiddleware } from "../middlewares/auth.js";
+import { PrismaClient } from "@prisma/client";
+import { searchLimiter } from "../config/rateLimit.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.post('/',
-    authMiddleware,
-    reviewValidation.create,
-    create
-);
+router.post("/", authMiddleware, reviewValidation.create, create);
 
-router.put('/:id', authMiddleware, update);
+router.get("/list", authMiddleware, list);
 
-router.delete('/:id', authMiddleware, remove);
+router.put("/:id", authMiddleware, update);
 
-router.get('/book-reviews/:bookId', searchLimiter, authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, remove);
+
+router.get(
+  "/book-reviews/:bookId",
+  searchLimiter,
+  authMiddleware,
+  async (req, res) => {
     try {
-        const bookId = parseInt(req.params.bookId);
+      const bookId = parseInt(req.params.bookId);
 
-        if (!bookId || isNaN(bookId)) {
-            return res.status(400).json({ error: "BookId inválido" });
-        }
+      if (!bookId || isNaN(bookId)) {
+        return res.status(400).json({ error: "BookId inválido" });
+      }
 
-        // Buscar todas as reviews do livro
-        const allReviews = await prisma.review.findMany({
-            where: { bookId: bookId },
-            include: {
-                user: {
-                    select: { name: true }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
+      // Buscar todas as reviews do livro
+      const allReviews = await prisma.review.findMany({
+        where: { bookId: bookId },
+        include: {
+          user: {
+            select: { name: true },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
-        // Calcular média
-        let totalRating = 0;
-        allReviews.forEach(review => {
-            totalRating += review.rating;
-        });
+      // Calcular média
+      let totalRating = 0;
+      allReviews.forEach((review) => {
+        totalRating += review.rating;
+      });
 
-        const avgRating = allReviews.length > 0 
-            ? totalRating / allReviews.length 
-            : 0;
+      const avgRating =
+        allReviews.length > 0 ? totalRating / allReviews.length : 0;
 
-        return res.json({
-            reviews: allReviews,
-            avgRating: parseFloat(avgRating.toFixed(1))
-        });
-
-    } catch(error) {
-        console.error("Erro ao buscar reviews:", error);
-        return res.status(500).json({ error: "Erro na busca das avaliações" });
+      return res.json({
+        reviews: allReviews,
+        avgRating: parseFloat(avgRating.toFixed(1)),
+      });
+    } catch (error) {
+      console.error("Erro ao buscar reviews:", error);
+      return res.status(500).json({ error: "Erro na busca das avaliações" });
     }
-});
+  },
+);
 
 export default router;

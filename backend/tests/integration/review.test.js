@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-describe("Loan API", () => {
+describe("Review API", () => {
   let authToken;
   let userId;
   let bookId;
@@ -78,47 +78,49 @@ describe("Loan API", () => {
     await prisma.$disconnect();
   });
 
-  describe("GET /api/loans", () => {
-    test("deve listar todos os empréstimos registrados no database", async () => {
+  describe("GET /api/reviews/list", () => {
+    test("deve listar todos as avaliações registrados no database", async () => {
       const response = await request(app)
-        .get("/api/loans")
+        .get("/api/reviews/list")
         .set("Authorization", `Bearer ${authToken}`)
         .expect(200);
 
-      expect(response.body).toHaveProperty("loans");
-      expect(Array.isArray(response.body.loans)).toBe(true);
+      expect(response.body).toHaveProperty("reviews");
+      expect(Array.isArray(response.body.reviews)).toBe(true);
     });
   });
 
-  describe("POST /api/loans/create", () => {
-    test("deve criar empréstimo com autenticação", async () => {
-      const loanData = {
-        bookId: bookId,
+  describe("POST /api/reviews", () => {
+    test("deve criar avaliação com autenticação", async () => {
+      const reviewData = {
         userId: userId,
+        bookId: bookId,
+        rating: 5,
       };
 
       const response = await request(app)
-        .post("/api/loans/create")
+        .post("/api/reviews")
         .set("Authorization", `Bearer ${authToken}`)
-        .send(loanData)
+        .send(reviewData)
         .expect(201);
 
-      expect(response.body).toHaveProperty("loan");
-      expect(response.body.loan.userId).toBe(loanData.userId);
+      expect(response.body).toHaveProperty("review");
+      expect(response.body.review.userId).toBe(reviewData.userId);
     });
 
-    test("não deve criar empréstimo sem autenticação", async () => {
-      const loanData = {
-        bookId: bookId,
+    test("não deve criar avaliação sem autenticação", async () => {
+      const reviewData = {
         userId: userId,
+        bookId: bookId,
+        rating: 5,
       };
 
-      await request(app).post("/api/loans/create").send(loanData).expect(401);
+      await request(app).post("/api/reviews").send(reviewData).expect(401);
     });
 
     test("deve validar campos obrigatórios", async () => {
       const response = await request(app)
-        .post("/api/loans/create")
+        .post("/api/reviews")
         .set("Authorization", `Bearer ${authToken}`)
         .send({ userId: userId })
         .expect(400);

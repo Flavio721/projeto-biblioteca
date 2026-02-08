@@ -1,5 +1,5 @@
-import { transporter } from '../config/email.js';
-import { PrismaClient } from '@prisma/client';
+import { transporter } from "../config/email.js";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -7,29 +7,29 @@ const prisma = new PrismaClient();
  * Envia email genérico
  */
 export async function sendEmail({ to, subject, html, text }) {
-    try {
-        const mailOptions = {
-            from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
-            to,
-            subject,
-            text, // Versão texto plano
-            html  // Versão HTML
-        };
+  try {
+    const mailOptions = {
+      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
+      to,
+      subject,
+      text, // Versão texto plano
+      html, // Versão HTML
+    };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email enviado:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Erro ao enviar email:', error);
-        return { success: false, error: error.message };
-    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email enviado:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Erro ao enviar email:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 /**
  * Email de confirmação de empréstimo
  */
 export async function sendLoanConfirmationEmail(user, book, loan) {
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -61,8 +61,8 @@ export async function sendLoanConfirmationEmail(user, book, loan) {
                     
                     <div class="book-info">
                         <h3>📅 Prazos:</h3>
-                        <p><strong>Data de Empréstimo:</strong> ${new Date(loan.loanDate).toLocaleDateString('pt-BR')}</p>
-                        <p><strong>Data de Devolução:</strong> ${new Date(loan.dueDate).toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Data de Empréstimo:</strong> ${new Date(loan.loanDate).toLocaleDateString("pt-BR")}</p>
+                        <p><strong>Data de Devolução:</strong> ${new Date(loan.dueDate).toLocaleDateString("pt-BR")}</p>
                         <p><strong>Renovações Disponíveis:</strong> ${process.env.MAX_RENEWALS || 2}</p>
                     </div>
                     
@@ -81,7 +81,7 @@ export async function sendLoanConfirmationEmail(user, book, loan) {
         </html>
     `;
 
-    const text = `
+  const text = `
 Olá, ${user.name}!
 
 Seu empréstimo foi aprovado com sucesso.
@@ -92,27 +92,27 @@ Detalhes do Livro:
 - ISBN: ${book.isbn}
 
 Prazos:
-- Data de Empréstimo: ${new Date(loan.loanDate).toLocaleDateString('pt-BR')}
-- Data de Devolução: ${new Date(loan.dueDate).toLocaleDateString('pt-BR')}
+- Data de Empréstimo: ${new Date(loan.loanDate).toLocaleDateString("pt-BR")}
+- Data de Devolução: ${new Date(loan.dueDate).toLocaleDateString("pt-BR")}
 
 Lembre-se de devolver o livro até a data indicada para evitar multas.
 
 Biblioteca Digital
     `;
 
-    return await sendEmail({
-        to: user.email,
-        subject: '📚 Empréstimo Confirmado - Biblioteca Digital',
-        html,
-        text
-    });
+  return await sendEmail({
+    to: user.email,
+    subject: "📚 Empréstimo Confirmado - Biblioteca Digital",
+    html,
+    text,
+  });
 }
 
 /**
  * Email de lembrete de devolução
  */
 export async function sendReturnReminderEmail(user, book, loan, daysRemaining) {
-    const html = `
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -135,7 +135,7 @@ export async function sendReturnReminderEmail(user, book, loan, daysRemaining) {
                     <div class="warning">
                         <h3>📖 Livro para Devolução:</h3>
                         <p><strong>${book.title}</strong></p>
-                        <p>Prazo: ${new Date(loan.dueDate).toLocaleDateString('pt-BR')}</p>
+                        <p>Prazo: ${new Date(loan.dueDate).toLocaleDateString("pt-BR")}</p>
                         <p><strong>Faltam ${daysRemaining} dia(s) para a devolução!</strong></p>
                     </div>
                     
@@ -146,21 +146,26 @@ export async function sendReturnReminderEmail(user, book, loan, daysRemaining) {
         </html>
     `;
 
-    return await sendEmail({
-        to: user.email,
-        subject: `⏰ Lembrete: Devolução em ${daysRemaining} dia(s)`,
-        html,
-        text: `Olá, ${user.name}! Lembre-se de devolver "${book.title}" em ${daysRemaining} dia(s).`
-    });
+  return await sendEmail({
+    to: user.email,
+    subject: `⏰ Lembrete: Devolução em ${daysRemaining} dia(s)`,
+    html,
+    text: `Olá, ${user.name}! Lembre-se de devolver "${book.title}" em ${daysRemaining} dia(s).`,
+  });
 }
 
 /**
  * Email de empréstimo atrasado
  */
-export async function sendOverdueNotificationEmail(user, book, loan, daysOverdue) {
-    const fine = daysOverdue * parseFloat(process.env.FINE_PER_DAY || 2.5);
-    
-    const html = `
+export async function sendOverdueNotificationEmail(
+  user,
+  book,
+  loan,
+  daysOverdue,
+) {
+  const fine = daysOverdue * parseFloat(process.env.FINE_PER_DAY || 2.5);
+
+  const html = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -183,7 +188,7 @@ export async function sendOverdueNotificationEmail(user, book, loan, daysOverdue
                     <div class="alert">
                         <h3>📖 Livro Atrasado:</h3>
                         <p><strong>${book.title}</strong></p>
-                        <p>Prazo de devolução: ${new Date(loan.dueDate).toLocaleDateString('pt-BR')}</p>
+                        <p>Prazo de devolução: ${new Date(loan.dueDate).toLocaleDateString("pt-BR")}</p>
                         <p><strong>Atrasado há ${daysOverdue} dia(s)</strong></p>
                         <p><strong>Multa acumulada: R$ ${fine.toFixed(2)}</strong></p>
                     </div>
@@ -195,126 +200,142 @@ export async function sendOverdueNotificationEmail(user, book, loan, daysOverdue
         </html>
     `;
 
-    return await sendEmail({
-        to: user.email,
-        subject: '⚠️ URGENTE: Empréstimo Atrasado',
-        html,
-        text: `ATENÇÃO: O livro "${book.title}" está atrasado há ${daysOverdue} dia(s). Multa: R$ ${fine.toFixed(2)}`
-    });
+  return await sendEmail({
+    to: user.email,
+    subject: "⚠️ URGENTE: Empréstimo Atrasado",
+    html,
+    text: `ATENÇÃO: O livro "${book.title}" está atrasado há ${daysOverdue} dia(s). Multa: R$ ${fine.toFixed(2)}`,
+  });
 }
 
 /**
  * Verifica empréstimos atrasados e envia emails
  */
 export async function verificarEmprestimosAtrasados() {
-    try {
-        console.log('🔍 Verificando empréstimos atrasados...');
-        
-        const hoje = new Date();
-        
-        // Buscar apenas empréstimos com status OVERDUE ou que já passaram da data
-        const overdueLoans = await prisma.loan.findMany({
-            where: {
-                OR: [
-                    { status: "OVERDUE" },
-                    {
-                        AND: [
-                            { status: "ACTIVE" },
-                            { dueDate: { lt: hoje } }, // Vencimento passou
-                            { returnDate: null }
-                        ]
-                    }
-                ]
-            },
-            include: {
-                user: true,
-                book: true
-            }
+  try {
+    console.log("🔍 Verificando empréstimos atrasados...");
+
+    const hoje = new Date();
+
+    // Buscar apenas empréstimos com status OVERDUE ou que já passaram da data
+    const overdueLoans = await prisma.loan.findMany({
+      where: {
+        OR: [
+          { status: "OVERDUE" },
+          {
+            AND: [
+              { status: "ACTIVE" },
+              { dueDate: { lt: hoje } }, // Vencimento passou
+              { returnDate: null },
+            ],
+          },
+        ],
+      },
+      include: {
+        user: true,
+        book: true,
+      },
+    });
+
+    console.log(`📊 Encontrados ${overdueLoans.length} empréstimos atrasados`);
+
+    // Processar cada empréstimo atrasado
+    for (const loan of overdueLoans) {
+      const diasAtrasados = Math.floor(
+        (hoje - new Date(loan.dueDate)) / (1000 * 60 * 60 * 24),
+      );
+
+      console.log(
+        `⚠️  ${loan.user.name} - ${loan.book.title}: ${diasAtrasados} dias`,
+      );
+
+      // Atualizar status se necessário
+      if (loan.status !== "OVERDUE") {
+        await prisma.loan.update({
+          where: { id: loan.id },
+          data: {
+            status: "OVERDUE",
+            fineAmount:
+              diasAtrasados * parseFloat(process.env.FINE_PER_DAY || 2.5),
+          },
         });
+      }
 
-        console.log(`📊 Encontrados ${overdueLoans.length} empréstimos atrasados`);
-
-        // Processar cada empréstimo atrasado
-        for (const loan of overdueLoans) {
-            const diasAtrasados = Math.floor((hoje - new Date(loan.dueDate)) / (1000 * 60 * 60 * 24));
-            
-            console.log(`⚠️  ${loan.user.name} - ${loan.book.title}: ${diasAtrasados} dias`);
-            
-            // Atualizar status se necessário
-            if (loan.status !== 'OVERDUE') {
-                await prisma.loan.update({
-                    where: { id: loan.id },
-                    data: { 
-                        status: 'OVERDUE',
-                        fineAmount: diasAtrasados * parseFloat(process.env.FINE_PER_DAY || 2.5)
-                    }
-                });
-            }
-            
-            // Enviar email
-            await sendOverdueNotificationEmail(loan.user, loan.book, loan, diasAtrasados);
-        }
-
-        console.log('✅ Empréstimos atrasados processados\n');
-        
-    } catch (error) {
-        console.error('❌ Erro ao verificar empréstimos atrasados:', error);
+      // Enviar email
+      await sendOverdueNotificationEmail(
+        loan.user,
+        loan.book,
+        loan,
+        diasAtrasados,
+      );
     }
+
+    console.log("✅ Empréstimos atrasados processados\n");
+  } catch (error) {
+    console.error("❌ Erro ao verificar empréstimos atrasados:", error);
+  }
 }
 
 /**
  * Envia lembretes para empréstimos próximos do vencimento
  */
 export async function enviarLembretesVencimento(diasAntes = 2) {
-    try {
-        console.log(`🔍 Verificando empréstimos próximos do vencimento (${diasAntes} dias)...`);
-        
-        const hoje = new Date();
-        const dataLimite = new Date();
-        dataLimite.setDate(dataLimite.getDate() + diasAntes);
-        
-        // Buscar empréstimos que vencem nos próximos X dias
-        const upcomingLoans = await prisma.loan.findMany({
-            where: {
-                status: "ACTIVE",
-                dueDate: {
-                    gte: hoje,      // Maior ou igual a hoje
-                    lte: dataLimite // Menor ou igual a data limite
-                },
-                returnDate: null
-            },
-            include: {
-                user: true,
-                book: true
-            }
-        });
+  try {
+    console.log(
+      `🔍 Verificando empréstimos próximos do vencimento (${diasAntes} dias)...`,
+    );
 
-        console.log(`📊 Encontrados ${upcomingLoans.length} empréstimos próximos do vencimento`);
+    const hoje = new Date();
+    const dataLimite = new Date();
+    dataLimite.setDate(dataLimite.getDate() + diasAntes);
 
-        // Enviar lembrete para cada um
-        for (const loan of upcomingLoans) {
-            const diasRestantes = Math.ceil((new Date(loan.dueDate) - hoje) / (1000 * 60 * 60 * 24));
-            
-            console.log(`📧 Lembrete para ${loan.user.name} - ${diasRestantes} dias restantes`);
-            
-            await sendReturnReminderEmail(loan.user, loan.book, loan, diasRestantes);
-        }
+    // Buscar empréstimos que vencem nos próximos X dias
+    const upcomingLoans = await prisma.loan.findMany({
+      where: {
+        status: "ACTIVE",
+        dueDate: {
+          gte: hoje, // Maior ou igual a hoje
+          lte: dataLimite, // Menor ou igual a data limite
+        },
+        returnDate: null,
+      },
+      include: {
+        user: true,
+        book: true,
+      },
+    });
 
-        console.log('✅ Lembretes enviados\n');
-        
-    } catch (error) {
-        console.error('❌ Erro ao enviar lembretes:', error);
+    console.log(
+      `📊 Encontrados ${upcomingLoans.length} empréstimos próximos do vencimento`,
+    );
+
+    // Enviar lembrete para cada um
+    for (const loan of upcomingLoans) {
+      const diasRestantes = Math.ceil(
+        (new Date(loan.dueDate) - hoje) / (1000 * 60 * 60 * 24),
+      );
+
+      console.log(
+        `📧 Lembrete para ${loan.user.name} - ${diasRestantes} dias restantes`,
+      );
+
+      await sendReturnReminderEmail(loan.user, loan.book, loan, diasRestantes);
     }
+
+    console.log("✅ Lembretes enviados\n");
+  } catch (error) {
+    console.error("❌ Erro ao enviar lembretes:", error);
+  }
 }
 
 /**
  * Executa todas as verificações
  */
 export async function executarVerificacoes() {
-    console.log('\n⏰ ===== VERIFICAÇÃO AUTOMÁTICA DE EMPRÉSTIMOS =====\n');
-    
-    await verificarEmprestimosAtrasados();
-    await enviarLembretesVencimento(2); // 2 dias antes
-    
-    console.log('⏰ ===== VERIFICAÇÃO CONCLUÍDA =====\n');
+  console.log("\n⏰ ===== VERIFICAÇÃO AUTOMÁTICA DE EMPRÉSTIMOS =====\n");
+
+  await verificarEmprestimosAtrasados();
+  await enviarLembretesVencimento(2); // 2 dias antes
+
+  console.log("⏰ ===== VERIFICAÇÃO CONCLUÍDA =====\n");
 }
