@@ -21,11 +21,11 @@ export const registerLimiter = rateLimit({
 });
 export const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 20,
+  max: 1000,
   message: { error: "Muitas requisições à API. Tente novamente em 1 minuto" },
 });
 export const searchLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 30,
+  max: 1000,
   message: { error: "Muitas buscas. Tente novamente em 1 minuto" },
 });

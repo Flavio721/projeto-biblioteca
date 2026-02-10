@@ -8,7 +8,6 @@ import dashboardRoutes from "./dashboard.routes.js";
 
 const router = express.Router();
 
-console.log("🔥 index.routes carregado");
 router.get("/health", (req, res) => {
   res.json({
     status: "OK",

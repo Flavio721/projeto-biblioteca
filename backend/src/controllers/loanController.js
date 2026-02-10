@@ -6,6 +6,7 @@ import {
 } from "../utils/dateHelper.js";
 import { AppError } from "../middlewares/errorHandle.js";
 import { sendLoanConfirmationEmail } from "../services/emailService.js";
+import cache from "../config/cache.js";
 
 const prisma = new PrismaClient();
 
@@ -323,6 +324,16 @@ export async function renew(req, res, next) {
 export async function getMyLoans(req, res, next) {
   try {
     const id = parseInt(req.user.id);
+    const cacheKey = `user:loans:${id}`;
+
+    console.log(`Verificando cache para chave: ${cacheKey}`);
+    const cachedLoans = cache.get(cacheKey);  // Renomeado para clareza
+
+    if (cachedLoans) {
+      console.log("CACHE HIT - Retornando empréstimos do cache");
+      return res.json({ loans: cachedLoans, cached: true });  // Consistente: sempre { loans: ... }
+    }
+    console.log("CACHE MISS - Consultando banco para empréstimos");
 
     const loans = await prisma.loan.findMany({
       where: { userId: id },
@@ -339,7 +350,14 @@ export async function getMyLoans(req, res, next) {
       },
       orderBy: { createdAt: "desc" },
     });
-    return res.json({ loans: loans });
+
+    console.log(`Query retornou ${loans.length} empréstimos`);  // Debug: confirma dados
+
+    // Salva no cache (mesmo se vazio, para evitar reconsultas)
+    cache.set(cacheKey, loans);
+    console.log(`Empréstimos salvos no cache para chave: ${cacheKey}`);
+
+    return res.json({ loans });  // Consistente com o hit
   } catch (error) {
     console.error("Erro ao buscar meus empréstimos: ", error);
     return next(new AppError("Erro ao buscar meus empréstimos", 500));
@@ -354,14 +372,26 @@ export async function getLoansByDate(req, res, next) {
     return next(new AppError("Informe a data inicial e final", 400));
   }
 
-  // início do dia
-  const start = new Date(startDate);
-  start.setUTCHours(0, 0, 0, 0);
+    // início do dia
+    const start = new Date(startDate);
+    start.setUTCHours(0, 0, 0, 0);
 
-  // início do dia seguinte
-  const end = new Date(endDate);
-  end.setUTCHours(0, 0, 0, 0);
-  end.setUTCDate(end.getUTCDate() + 1);
+    // início do dia seguinte
+    const end = new Date(endDate);
+    end.setUTCHours(0, 0, 0, 0);
+    end.setUTCDate(end.getUTCDate() + 1);
+
+  const cacheKey = `loans:byDate:${safeStart}:${safeEnd}:page${page}:limit${limit}`;
+
+  console.log(`Verificando cache para chave: ${cacheKey}`);
+  const cachedLoans = cache.get(cacheKey);
+
+  if (cachedLoans) {
+    console.log("CACHE HIT - Retornando empréstimos por data do cache");
+    return res.json({ ...cachedLoans, cached: true });
+  }
+  console.log("CACHE MISS - Consultando banco para empréstimos por data");
+
 
   const loans = await prisma.loan.findMany({
     where: {
@@ -382,11 +412,22 @@ export async function getLoansByDate(req, res, next) {
       createdAt: "desc",
     },
   });
-
+  cache.set(cacheKey, loans);
+  console.log(`Empréstimos por data salvos no cache para chave: ${cacheKey}`);
   return res.json({ loans: loans });
 }
 export async function getAllFine(req, res, next) {
   try {
+    const cacheKey = `fines:all`;
+
+    console.log(`Verificando cache para chave: ${cacheKey}`);
+    const cachedFines = cache.get(cacheKey);
+
+    if (cachedUser) {
+      console.log("CACHE HIT - Retornando dados do usuário do cache");
+      return res.json({ ...cachedFines, cached: true });
+    }
+    console.log("CACHE MISS - Consultando banco para dados do usuário");
     const allFines = await prisma.loan.findMany({
       where: {
         fineAmount: {
@@ -399,7 +440,8 @@ export async function getAllFine(req, res, next) {
         },
       },
     });
-
+    cache.set(cacheKey, allFines);
+    console.log(`Dados salvos no cache para chave: ${cacheKey}`);
     return res.status(200).json({
       allFines: allFines,
     });

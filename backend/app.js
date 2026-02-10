@@ -5,7 +5,7 @@ import path from "path";
 import routes from "./src/routes/index.js";
 import pageRoutes from "./src/routes/pages.routes.js";
 import errorHandle from "./src/middlewares/errorHandle.js";
-import { generalLimiter } from "./src/config/rateLimit.js";
+import { apiLimiter, generalLimiter } from "./src/config/rateLimit.js";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +44,7 @@ app.get("/api-service", (req, res) => {
   });
 });
 
-app.use("/api", generalLimiter, routes);
+app.use("/api", apiLimiter, routes);
 app.use("/", pageRoutes);
 
 app.post("/api/users/favoritar", (req, res) => {

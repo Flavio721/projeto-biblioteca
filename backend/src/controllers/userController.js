@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { AppError } from "../middlewares/errorHandle.js";
+import cache from "../config/cache.js";
 
 const prisma = new PrismaClient();
 
@@ -248,10 +249,22 @@ export async function popularUsers(req, res, next) {
     return next(new AppError("Erro ao retornar usuários populares", 500));
   }
 }
+
 export async function getWishList(req, res, next) {
   try {
     const userId = req.user.id;
+    const cacheKey = `user:wishlist:${userId}`;
 
+    console.log(`Verificando cache para chave: ${cacheKey}`);
+    const cachedWishlist = cache.get(cacheKey);
+
+    if (cachedWishlist) {
+      console.log("CACHE HIT - Retornando wishlist do cache");
+      return res.json({ ...cachedWishlist, cached: true });  // Retorna o objeto completo com 'cached: true'
+    }
+    console.log("CACHE MISS - Consultando banco para wishlist");
+
+    // Primeira consulta: Encontrar a wishlist do usuário
     const userWishList = await prisma.wishlist.findFirst({
       where: {
         userId: userId,
@@ -259,20 +272,28 @@ export async function getWishList(req, res, next) {
     });
 
     if (!userWishList) {
-      return next(new AppError("Lista de desejos não encontrada", 404));
+      return next(new AppError("Lista de desejos não encontrada", 404));  // Não salva no cache para evitar cache de erro
     }
 
+    // Segunda consulta: Buscar itens associados
     const userWishListItems = await prisma.wishlistItem.findMany({
       where: {
         wishlistId: userWishList.id,
       },
     });
 
-    return res.status(201).json({
+    // Estrutura o resultado completo
+    const result = {
       message: "Lista de desejos encontrada",
       wishlist: userWishList,
       items: userWishListItems,
-    });
+    };
+
+    // Salva o resultado completo no cache
+    cache.set(cacheKey, result);
+    console.log(`Wishlist completa salva no cache para chave: ${cacheKey}`);
+
+    return res.status(200).json(result);  // Status 200 para GET
   } catch (error) {
     console.error("Erro: ", error);
     return next(new AppError("Erro ao retornar lista de desejos", 500));

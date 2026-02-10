@@ -11,10 +11,10 @@ const __dirname = path.dirname(__filename);
 router.get("/", pageAuth, (req, res) => {
   res.sendFile(path.join(__dirname, "../../../frontend/pages/index.html"));
 });
-router.get("/login", pageAuth, (req, res) => {
+router.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../../../frontend/pages/login.html"));
 });
-router.get("/cadastro", pageAuth, (req, res) => {
+router.get("/cadastro", (req, res) => {
   res.sendFile(path.join(__dirname, "../../../frontend/pages/cadastro.html"));
 });
 router.get("/catalogo", pageAuth, (req, res) => {

@@ -6,6 +6,7 @@ import {
 import { AppError } from "../middlewares/errorHandle.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { maskIsbn } from "../utils/dateHelper.js";
+import cache from "../config/cache.js";
 
 const prisma = new PrismaClient();
 
@@ -70,6 +71,8 @@ export async function create(req, res, next) {
       },
     });
 
+    cache.flushAll(); // Limpa todo o cache
+
     return res.status(201).json({ 
       message: 'Livro criado com sucesso',
       book 
@@ -98,6 +101,19 @@ export async function list(req, res, next) {
 
     const skip = (page - 1) * limit;
     const where = {};
+
+    const cacheKey = `books:search:${search || 'all'}:${category || 'all'}:${status || 'all'}:page${page}:limit${limit}:${sortBy}:${order}`;
+
+    const cachedBooks = cache.get(cacheKey);
+
+    if(cachedBooks){
+      console.log("CACHE HIT");
+      return res.json({
+        ...cachedBooks,
+        cached: true
+      })
+    }
+    console.log("CACHE NOT FOUND");
 
     if (search) {
       where.OR = [
@@ -133,21 +149,27 @@ export async function list(req, res, next) {
           reviews.length > 0
             ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             : 0;
-        return {
-          ...book,
-          averageRating: Math.round(avgRating * 10) / 10,
-          reviewCount: reviews.length,
-        };
-      }),
-    );
+
+            return {
+              ...book,
+              averageRating: Math.round(avgRating * 10) / 10,
+              reviewCount: reviews.length,
+            };
+          }),
+        );
+      const result = {
+        books: booksWithRatings,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      };
+      cache.set(cacheKey, result);
+      console.log(`Dados salvos no cache para chave: ${cacheKey}`);
     return res.json({
-      books: booksWithRatings,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      result
     });
   } catch (error) {
     console.error("Erro ao listar os livros", error);
@@ -216,6 +238,9 @@ export async function update(req, res, next) {
       where: { id: parseInt(id) },
       data: updateData,
     });
+
+    cache.flushAll();
+
     return res.json({
       message: "Livro atualizado com sucesso",
       book,

@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { generateToken } from "../utils/jwt.js";
 import { AppError } from "../middlewares/errorHandle.js";
+import cache from "../config/cache.js";
 
 const prisma = new PrismaClient();
 
@@ -109,6 +110,18 @@ export async function login(req, res, next) {
 }
 export async function me(req, res, next) {
   try {
+    const userId = req.user.id;
+    const cacheKey = `user:me:${userId}`;
+
+    console.log(`Verificando cache para chave: ${cacheKey}`);
+    const cachedUser = cache.get(cacheKey);
+
+    if (cachedUser) {
+      console.log("CACHE HIT - Retornando dados do usuário do cache");
+      return res.json({ user: cachedUser, cached: true });
+    }
+    console.log("CACHE MISS - Consultando banco para dados do usuário");
+
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: {
@@ -124,6 +137,8 @@ export async function me(req, res, next) {
         createdAt: true,
       },
     });
+    cache.set(cacheKey, user);
+    console.log(`Dados salvos no cache para chave: ${cacheKey}`);
     res.json({ user });
   } catch (error) {
     return next(new AppError("Erro ao buscar dados do usuário", 500));
