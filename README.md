@@ -62,6 +62,9 @@ npm run dev
 
 # Modo produção
 npm start
+
+# Servidor Node
+node <nome_do_arquivo_server>.js
 ```
 
 **Saída esperada:**
