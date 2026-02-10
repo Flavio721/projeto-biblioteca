@@ -1,7 +1,5 @@
 # 📖 Sistema de Biblioteca Digital - Guia de Execução
 
-# 📖 Sistema de Biblioteca Digital - Guia de Execução
-
 ## 🚀 Como Executar o Projeto
 
 ### Passo 1: Clonar e Instalar
@@ -505,6 +503,17 @@ Ao completar este projeto, você terá praticado:
 - [JWT.io](https://jwt.io/)
 - [Jest Documentation](https://jestjs.io/)
 - [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+
+
+## 👨‍💻 Autor
+
+**Flávio Inocêncio Ramos Coelho**  
+Desenvolvedor Full Stack  
+
+- 🐙 GitHub: https://github.com/Flavio721
+- ✉️ Email: flavio2010sjcc@gmail.com 
+
+Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimentos em Node.js, Express, Prisma e arquitetura de APIs REST.
 
 ## ⚠️ Segurança
 
